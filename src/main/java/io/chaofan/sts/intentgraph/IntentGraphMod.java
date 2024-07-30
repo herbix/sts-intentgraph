@@ -1,14 +1,11 @@
 package io.chaofan.sts.intentgraph;
 
-import basemod.BaseMod;
-import basemod.ModLabeledToggleButton;
-import basemod.ModPanel;
+import basemod.*;
 import basemod.devcommands.ConsoleCommand;
-import basemod.interfaces.PostBattleSubscriber;
-import basemod.interfaces.PostDeathSubscriber;
-import basemod.interfaces.PostInitializeSubscriber;
-import basemod.interfaces.PostRenderSubscriber;
+import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.Loader;
@@ -21,6 +18,8 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
+import com.megacrit.cardcrawl.helpers.controller.CInputHelper;
+import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
@@ -50,6 +49,8 @@ public class IntentGraphMod implements
     public static final Logger logger = LogManager.getLogger(IntentGraphMod.class.getName());
 
     private static final String UNLOCK_ALL = "UnlockAll";
+    private static final String TOGGLE_KEY = "ToggleIntentGraph";
+    private static final String PRESS_ANY_KEY_TO_SET = "PressAnyKeyToSet";
 
     public static String getImagePath(String file) {
         return MOD_ID + "/images/" + file;
@@ -63,6 +64,8 @@ public class IntentGraphMod implements
 
     private static SpireConfig config;
     private static boolean unlockAll = false;
+    private static int toggleKey = Input.Keys.F1;
+    private static boolean showIntentGraph = true;
     private static final Set<String> unlockMonsterInNextCombat = new HashSet<>();
 
     public static void initialize() {
@@ -103,6 +106,14 @@ public class IntentGraphMod implements
             return;
         }
 
+        if (Gdx.input.isKeyJustPressed(toggleKey)) {
+            showIntentGraph = !showIntentGraph;
+        }
+
+        if (!showIntentGraph) {
+            return;
+        }
+
         for (AbstractMonster monster : room.monsters.monsters) {
             if (monster.hb.hovered && !monster.isDeadOrEscaped()) {
                 renderIntentGraphForMonster(monster, spriteBatch);
@@ -137,6 +148,7 @@ public class IntentGraphMod implements
 
         if (config != null) {
             unlockAll = config.has(UNLOCK_ALL) ? config.getBool(UNLOCK_ALL) : unlockAll;
+            toggleKey = config.has(TOGGLE_KEY) ? config.getInt(TOGGLE_KEY) : toggleKey;
         }
 
         ModPanel settingsPanel = new ModPanel();
@@ -165,7 +177,55 @@ public class IntentGraphMod implements
                     }
                 });
 
+        yPos -= 50f;
+        ModLabel toggleKeyLabel1 = new ModLabel(
+                configStrings.get(TOGGLE_KEY),
+                350.0f,
+                yPos,
+                Settings.CREAM_COLOR,
+                FontHelper.charDescFont,
+                settingsPanel,
+                (label) -> {}
+        );
+        float textWidth = FontHelper.getWidth(FontHelper.charDescFont, configStrings.get(TOGGLE_KEY), 1);
+
+        ModLabel toggleKeyLabel2 = new ModLabel(
+                Input.Keys.toString(toggleKey),
+                350.0f + textWidth + 160f,
+                yPos,
+                Settings.CREAM_COLOR,
+                FontHelper.charDescFont,
+                settingsPanel,
+                (label) -> {}
+        );
+
+        ModButton toggleKeyButton = new ModButton(
+                350.0f + textWidth + 50f,
+                yPos - 50f,
+                settingsPanel,
+                (button) -> {
+                    toggleKeyLabel2.text = configStrings.get(PRESS_ANY_KEY_TO_SET);
+                    Gdx.input.setInputProcessor(new InputAdapter() {
+                        @Override
+                        public boolean keyDown(int keycode) {
+                            InputHelper.regainInputFocus();
+                            CInputHelper.regainInputFocus();
+                            toggleKey = keycode;
+                            toggleKeyLabel2.text = Input.Keys.toString(toggleKey);
+                            if (config != null) {
+                                config.setInt(TOGGLE_KEY, toggleKey);
+                                trySaveConfig(config);
+                                showIntentGraph = true;
+                            }
+                            return false;
+                        }
+                    });
+                });
+
         settingsPanel.addUIElement(unlockAllButton);
+        settingsPanel.addUIElement(toggleKeyLabel1);
+        settingsPanel.addUIElement(toggleKeyButton);
+        settingsPanel.addUIElement(toggleKeyLabel2);
         return settingsPanel;
     }
 

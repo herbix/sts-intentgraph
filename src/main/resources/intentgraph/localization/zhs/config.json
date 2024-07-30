@@ -1,3 +1,5 @@
 {
-  "UnlockAll": "全部解锁"
+  "UnlockAll": "全部解锁",
+  "ToggleIntentGraph": "开启/关闭意图状态机的快捷键",
+  "PressAnyKeyToSet": "按任意健以设置"
 }

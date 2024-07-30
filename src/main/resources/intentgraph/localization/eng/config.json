@@ -1,3 +1,5 @@
 {
-  "UnlockAll": "Unlock All"
+  "UnlockAll": "Unlock All",
+  "ToggleIntentGraph": "Hotkey to toggle intent graph",
+  "PressAnyKeyToSet": "Press any key to set"
 }

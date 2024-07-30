@@ -14,12 +14,25 @@
    "<monster_id>": {
       "width": 3,    // Width of the graph
       "height": 1.3, // Height of the graph
-      "graphs": {
-         "0": { // Ascension level, 0 is necessary
-                // you may skip some ascension levels
+      "graphList": [
+         {
+            // id is optional, needed only it's extended
+            "id": "a0",
+            // The *last* graph that matches condition will be shown.
+            // So it's recommended to set condition of first graph to true.
+            // By default, it's "true".
+            "condition": "true",
             "damages": [
                {
                   "min": 6
+               },
+               {  // Shows "3~4"
+                  "min": 3,
+                  "max": 4,
+               },
+               {
+                  // Shows "?"
+                  "string": "?"
                }
             ],
             "icons": [
@@ -31,6 +44,13 @@
                   "attackCount": 1,
                   "percentage": 100,
                   "limit": 1
+               },
+               {
+                  "x": 1,
+                  "y": 0,
+                  "type": "ATTACK",
+                  "damageIndex": 3,
+                  "attackCountString": "N",
                },
                {
                   "x": 0,
@@ -73,17 +93,43 @@
                }
             ]
          },
-         "2": { // Ascension level 2
-            // If this is true, this overwrites all things defined in ascension 0,
-            // otherwise, this will be merged with ascension 0
-            "overwrite": true,
+         {  // Example of Ascension level 2
+            // You may use "ascension", "act", "index" (of monsters),
+            // "m.{field}" where field is defined in the monster class and
+            // type is boolean or int.
+            // Only comparison (>, <, ==, etc.) and logical operators (!, ||, &&)
+            // are allowed.
+            "condition": "ascension >= 2",
+            // Copies everything from the graph with id "a0"
+            "extend": "a0",
+            // This is only for display, use "condition" to control whether to
+            // show it.
+            "ascensionLevel": 2,
+            // Overwrite damages
+            "damages": [
+               {
+                  "min": 7
+               }
+            ],
+            // Overwrite icons
+            "icons": [
+               // You may set an item to null if you don't want to overwrite it. 
+               null,
+               {
+                  "x": 0,
+                  "y": 0,
+                  "type": "DEBUFF"
+               }
+            ],
             // You can overwrite graph size here, too.
             "width": 2,
             "height": 1
          },
-         "17": { // Ascension level 17
+         {  // Ascension level 17
+            "condition": "ascension >= 17",
+            "ascensionLevel": 17,
          }
-      }
+      ]
    }
 }
 ```

@@ -25,7 +25,7 @@ public class MonsterIntentGraph {
     private static final TextureRegion BOX_BR = new TextureRegion(ImageMaster.KEYWORD_BOT, 288, 0, 32, 32);
 
     private boolean initialized = false;
-    private GraphLibrary graphLibrary;
+    private transient GraphLibrary graphLibrary;
 
     public float width;
     public float height;

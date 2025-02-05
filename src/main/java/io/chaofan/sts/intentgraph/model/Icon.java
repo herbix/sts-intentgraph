@@ -20,19 +20,19 @@ public class Icon {
     public int attackCount;
     public String attackCountString;
 
-    public void render(MonsterGraphDetail graphDetail, float x, float y, SpriteBatch sb) {
+    public void render(DamageProvider damageProvider, float x, float y, SpriteBatch sb) {
         sb.setColor(Color.WHITE);
 
         float scale = Settings.scale;
         float iconX = x + this.x * scale * IntentGraphMod.GRID_SIZE + 8 * scale;
         float iconY = y - (this.y + 1) * scale * IntentGraphMod.GRID_SIZE + 8 * scale;
-        boolean isAttack = renderIconImage(graphDetail, sb, this, iconX, iconY);
+        boolean isAttack = renderIconImage(damageProvider, sb, this, iconX, iconY);
 
         BitmapFont font = FontHelper.cardEnergyFont_L;
         font.getData().setScale(0.5f);
 
         if (isAttack) {
-            Damage damage = graphDetail.damages[damageIndex];
+            Damage damage = damageProvider.getDamage(damageIndex);
             String damageString = damage.string != null ? damage.string :
                     (damage.max <= damage.min ? String.valueOf(damage.min) : String.format("%d~%d", damage.min, damage.max));
             if (attackCount > 1) {
@@ -53,7 +53,7 @@ public class Icon {
         font.getData().setScale(1);
     }
 
-    private boolean renderIconImage(MonsterGraphDetail graphDetail, SpriteBatch sb, Icon icon, float iconX, float iconY) {
+    private boolean renderIconImage(DamageProvider damageProvider, SpriteBatch sb, Icon icon, float iconX, float iconY) {
         float scale = Settings.scale;
         float scale64 = scale * 64;
         float scale4 = scale * 4;
@@ -61,22 +61,22 @@ public class Icon {
         boolean isAttack = false;
         switch (icon.type) {
             case ATTACK:
-                sb.draw(getAttackIntent(graphDetail.damages[icon.damageIndex].max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
+                sb.draw(getAttackIntent(damageProvider.getDamage(icon.damageIndex).max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
                 isAttack = true;
                 break;
             case ATTACK_BUFF:
                 sb.draw(ImageMaster.INTENT_BUFF, iconX, iconY, scale64, scale64);
-                sb.draw(getAttackIntent(graphDetail.damages[icon.damageIndex].max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
+                sb.draw(getAttackIntent(damageProvider.getDamage(icon.damageIndex).max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
                 isAttack = true;
                 break;
             case ATTACK_DEBUFF:
                 sb.draw(ImageMaster.INTENT_DEBUFF, iconX, iconY, scale64, scale64);
-                sb.draw(getAttackIntent(graphDetail.damages[icon.damageIndex].max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
+                sb.draw(getAttackIntent(damageProvider.getDamage(icon.damageIndex).max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
                 isAttack = true;
                 break;
             case ATTACK_DEFEND:
                 sb.draw(ImageMaster.INTENT_DEFEND, iconX, iconY, scale64, scale64);
-                sb.draw(getAttackIntent(graphDetail.damages[icon.damageIndex].max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
+                sb.draw(getAttackIntent(damageProvider.getDamage(icon.damageIndex).max * icon.attackCount), iconX + scale4, iconY + scale4, scale56, scale56);
                 isAttack = true;
                 break;
             case DEFEND:

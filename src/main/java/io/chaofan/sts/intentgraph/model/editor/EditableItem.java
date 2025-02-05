@@ -6,6 +6,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public interface EditableItem {
     void update();
     void updateSelected();
-    void render(SpriteBatch sb);
+    void render(SpriteBatch sb, EditableMonsterGraphDetail graphDetail);
     void renderHitBoxes(SpriteBatch sb, Color color);
 }

@@ -2,21 +2,15 @@ package io.chaofan.sts.intentgraph.model.editor;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import io.chaofan.sts.intentgraph.model.Icon;
+import io.chaofan.sts.intentgraph.model.Arrow;
 
-public class EditableIcon extends Icon implements EditableItem {
+public class EditableArrow extends Arrow implements EditableItem {
     private final float renderX;
     private final float renderY;
 
-    public EditableIcon(float renderX, float renderY, Icon icon) {
-        this.x = icon.x;
-        this.y = icon.y;
-        this.type = icon.type;
-        this.damageIndex = icon.damageIndex;
-        this.percentage = icon.percentage;
-        this.limit = icon.limit;
-        this.attackCount = icon.attackCount;
-        this.attackCountString = icon.attackCountString;
+    public EditableArrow(float renderX, float renderY, Arrow arrow) {
+        this.path = arrow.path.clone();
+        this.instant = arrow.instant;
         this.renderX = renderX;
         this.renderY = renderY;
     }
@@ -33,8 +27,7 @@ public class EditableIcon extends Icon implements EditableItem {
 
     @Override
     public void render(SpriteBatch sb, EditableMonsterGraphDetail graphDetail) {
-        this.render(graphDetail, renderX, renderY, sb);
-
+        this.render(this.renderX, this.renderY, sb);
     }
 
     @Override

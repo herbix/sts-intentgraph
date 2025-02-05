@@ -23,6 +23,7 @@ import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
+import io.chaofan.sts.intentgraph.ui.EditIntentGraphScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -62,6 +63,8 @@ public class IntentGraphMod implements
 
     public static final int GRID_SIZE = 80;
 
+    public static EditIntentGraphScreen editIntentGraphScreen;
+
     private static SpireConfig config;
     private static boolean unlockAll = false;
     private static int toggleKey = Input.Keys.F1;
@@ -92,12 +95,17 @@ public class IntentGraphMod implements
         BaseMod.registerModBadge(badgeTexture, "Intent Graph", "Chaofan", "", settingsPanel);
 
         loadIntents();
+
+        editIntentGraphScreen = new EditIntentGraphScreen();
+        BaseMod.addCustomScreen(editIntentGraphScreen);
+
         ConsoleCommand.addCommand("reloadintents", ReloadIntentsCommand.class);
+        ConsoleCommand.addCommand("editintent", EditIntentCommand.class);
     }
 
     @Override
     public void receivePostRender(SpriteBatch spriteBatch) {
-        if (AbstractDungeon.getCurrMapNode() == null) {
+        if (AbstractDungeon.getCurrMapNode() == null || AbstractDungeon.isScreenUp) {
             return;
         }
 
@@ -130,6 +138,10 @@ public class IntentGraphMod implements
     @Override
     public void receivePostDeath() {
         unlockMonstersInCurrentCombat();
+    }
+
+    public MonsterIntentGraph getIntentGraph(String monsterId) {
+        return intents.get(monsterId);
     }
 
     private void unlockMonstersInCurrentCombat() {

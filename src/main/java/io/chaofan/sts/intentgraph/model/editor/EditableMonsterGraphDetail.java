@@ -1,13 +1,20 @@
 package io.chaofan.sts.intentgraph.model.editor;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.helpers.FontHelper;
+import io.chaofan.sts.intentgraph.IntentGraphMod;
 import io.chaofan.sts.intentgraph.model.*;
 
 import java.util.ArrayList;
 
 public class EditableMonsterGraphDetail implements DamageProvider {
-    public final float renderX;
-    public final float renderY;
+    private final float renderX;
+    private final float renderY;
+    private final String name;
+    private final Color color = new Color(1.0F, 1.0F, 1.0F, 0.5F);
+
     public int ascensionLevel;
     public float width;
     public float height;
@@ -17,7 +24,13 @@ public class EditableMonsterGraphDetail implements DamageProvider {
     public ArrayList<EditableArrow> arrows = new ArrayList<>();
     public ArrayList<EditableLabel> labels = new ArrayList<>();
 
-    public EditableMonsterGraphDetail(float renderX, float renderY, MonsterGraphDetail detail) {
+    public EditableMonsterGraphDetail(float renderX, float renderY, String name) {
+        this.renderX = renderX;
+        this.renderY = renderY;
+        this.name = name;
+    }
+
+    public EditableMonsterGraphDetail(float renderX, float renderY, String name, MonsterGraphDetail detail) {
         this.ascensionLevel = detail.ascensionLevel;
         this.width = detail.width;
         this.height = detail.height;
@@ -52,9 +65,24 @@ public class EditableMonsterGraphDetail implements DamageProvider {
         }
         this.renderX = renderX;
         this.renderY = renderY;
+        this.name = name;
     }
 
     public void render(SpriteBatch sb) {
+        float scale = Settings.scale;
+        float scale32 = 32 * scale;
+        float x = this.renderX - scale32;
+        float y = this.renderY + scale32 * 2;
+
+        MonsterIntentGraph.renderBox(color, x, y, width * IntentGraphMod.GRID_SIZE * scale, (height * IntentGraphMod.GRID_SIZE + 32) * scale, sb);
+        FontHelper.renderFontLeftTopAligned(sb, FontHelper.tipHeaderFont, name, x + 20 * scale, y - 20 * scale, Color.WHITE);
+
+        sb.setColor(Color.WHITE);
+        int renderAscensionLevel = this.ascensionLevel;
+        if (renderAscensionLevel > 0) {
+            MonsterIntentGraph.renderAscensionLevel(renderAscensionLevel, x + scale32 + (width * IntentGraphMod.GRID_SIZE + 12) * scale, y - 20 * scale, sb);
+        }
+
         for (EditableIcon icon : icons) {
             icon.render(sb, this);
         }

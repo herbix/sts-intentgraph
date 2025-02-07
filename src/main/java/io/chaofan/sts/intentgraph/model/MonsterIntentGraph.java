@@ -133,20 +133,20 @@ public class MonsterIntentGraph {
         sb.setColor(Color.WHITE);
         int renderAscensionLevel = graphDetail.ascensionLevel;
         if (renderAscensionLevel > 0) {
-            this.renderAscensionLevel(renderAscensionLevel, x + scale32 + (width * IntentGraphMod.GRID_SIZE + 12) * scale, y - 20 * scale, sb);
+            renderAscensionLevel(renderAscensionLevel, x + scale32 + (width * IntentGraphMod.GRID_SIZE + 12) * scale, y - 20 * scale, sb);
         }
 
         graphDetail.render(x + scale32, y - scale32 * 2, sb);
     }
 
-    private void renderAscensionLevel(int renderAscensionLevel, float x, float y, SpriteBatch sb) {
+    public static void renderAscensionLevel(int renderAscensionLevel, float x, float y, SpriteBatch sb) {
         float scale = Settings.scale;
         float scale64 = 64 * scale;
         FontHelper.renderFontRightTopAligned(sb, FontHelper.tipHeaderFont, Integer.toString(renderAscensionLevel), x, y, Settings.RED_TEXT_COLOR);
         sb.draw(ImageMaster.TP_ASCENSION, x - 54 * scale - FontHelper.layout.width, y - 42 * scale, scale64, scale64);
     }
 
-    private void renderBox(Color color, float x, float y, float w, float h, SpriteBatch sb) {
+    public static void renderBox(Color color, float x, float y, float w, float h, SpriteBatch sb) {
         sb.setColor(color);
         float scale = Settings.scale;
         float scale32 = 32 * scale;

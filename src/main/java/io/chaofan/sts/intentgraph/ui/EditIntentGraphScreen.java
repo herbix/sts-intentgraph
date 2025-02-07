@@ -13,10 +13,10 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import io.chaofan.sts.intentgraph.GraphLibrary;
 import io.chaofan.sts.intentgraph.IntentGraphMod;
-import io.chaofan.sts.intentgraph.model.MonsterGraphDetail;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
+import io.chaofan.sts.intentgraph.model.editor.EditableMonsterGraphDetail;
+import io.chaofan.sts.intentgraph.model.editor.EditableMonsterIntentGraph;
 import io.chaofan.sts.intentgraph.patches.DisableInputActionPatch;
 
 import java.util.HashMap;
@@ -31,8 +31,8 @@ public class EditIntentGraphScreen extends CustomScreen {
     private final EditorCanvas editorCanvas = new EditorCanvas(350 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, Settings.WIDTH - 870 * Settings.scale, toolbox);
     private final PropertiesControl propertiesControl = new PropertiesControl(Settings.WIDTH - 500 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale);
 
-    private final HashMap<String, MonsterIntentGraph> intents = new HashMap<>();
-    private MonsterIntentGraph monsterIntentGraph;
+    private final HashMap<String, EditableMonsterIntentGraph> intents = new HashMap<>();
+    private EditableMonsterIntentGraph monsterIntentGraph;
 
     public EditIntentGraphScreen() {
         editorControl.setOnExit(this::exit);
@@ -49,23 +49,22 @@ public class EditIntentGraphScreen extends CustomScreen {
         reopen();
 
         monsterIntentGraph = intents.get(monsterId);
+        AbstractMonster monster = AbstractDungeon.getMonsters().monsters.stream().filter(m -> m.id.equals(monsterId)).findFirst().orElse(null);
+        String monsterName = monster != null ? monster.name : "";
         if (monsterIntentGraph == null) {
-            monsterIntentGraph = IntentGraphMod.instance.getIntentGraph(monsterId);
-            if (monsterIntentGraph == null) {
-                monsterIntentGraph = new MonsterIntentGraph();
-                monsterIntentGraph.width = 4;
-                monsterIntentGraph.height = 3;
-                monsterIntentGraph.a0 = new MonsterGraphDetail();
+            MonsterIntentGraph intentGraph = IntentGraphMod.instance.getIntentGraph(monsterId);
+            if (intentGraph == null) {
+                monsterIntentGraph = new EditableMonsterIntentGraph();
+                EditableMonsterGraphDetail graphDetail = new EditableMonsterGraphDetail(editorCanvas.getGraphRenderX(), editorCanvas.getGraphRenderY(), monsterName);
+                for (int i = 0; i < 20; i++) {
+                    monsterIntentGraph.graphs.put(i, graphDetail);
+                }
             } else {
-                monsterIntentGraph = monsterIntentGraph.clone();
+                intentGraph.initMonsterGraphDetail(monster != null ? monster.type : AbstractMonster.EnemyType.NORMAL);
+                monsterIntentGraph = new EditableMonsterIntentGraph(editorCanvas.getGraphRenderX(), editorCanvas.getGraphRenderY(), intentGraph, monsterName);
             }
             intents.put(monsterId, monsterIntentGraph);
         }
-        AbstractMonster monster = AbstractDungeon.getMonsters().monsters.stream().filter(m -> m.id.equals(monsterId)).findFirst().orElse(null);
-        monsterIntentGraph.initMonsterGraphDetail(monster != null ? monster.type : AbstractMonster.EnemyType.NORMAL);
-        monsterIntentGraph.a0 = monsterIntentGraph.a1 = monsterIntentGraph.a2 = null;
-        monsterIntentGraph.graphs.clear();
-        editorCanvas.setIntentGraph(monsterIntentGraph, monster != null ? monster.name : "");
         onAscensionChange(editorControl.getAscension());
     }
 
@@ -118,9 +117,7 @@ public class EditIntentGraphScreen extends CustomScreen {
     }
 
     private void onAscensionChange(int ascension) {
-        GraphLibrary graphLibrary = monsterIntentGraph.getGraphLibrary();
-        graphLibrary.setOverwriteAscension(editorControl.getAscension());
-        editorCanvas.setGraphDetail(graphLibrary.get(null));
+        editorCanvas.setGraphDetail(monsterIntentGraph.graphs.get(ascension));
     }
 
     private void exit() {

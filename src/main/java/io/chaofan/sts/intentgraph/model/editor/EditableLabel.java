@@ -1,13 +1,20 @@
 package io.chaofan.sts.intentgraph.model.editor;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.helpers.FontHelper;
+import com.megacrit.cardcrawl.helpers.Hitbox;
 import io.chaofan.sts.intentgraph.model.Label;
 
-public class EditableLabel extends Label implements EditableItem {
+import java.util.Collection;
+import java.util.Collections;
 
+public class EditableLabel extends Label implements EditableItem {
     private final float renderX;
     private final float renderY;
+
+    private final Hitbox hitbox = new Hitbox(0, 0);
 
     public EditableLabel(float renderX, float renderY, Label label) {
         this.x = label.x;
@@ -16,11 +23,12 @@ public class EditableLabel extends Label implements EditableItem {
         this.align = label.align;
         this.renderX = renderX;
         this.renderY = renderY;
+        updateHitBoxLocation();
     }
 
     @Override
     public void update() {
-
+        updateHitBoxes();
     }
 
     @Override
@@ -34,7 +42,20 @@ public class EditableLabel extends Label implements EditableItem {
     }
 
     @Override
-    public void renderHitBoxes(SpriteBatch sb, Color color) {
+    public Collection<Hitbox> getHitBoxes() {
+        return Collections.singleton(hitbox);
+    }
 
+    private void updateHitBoxLocation() {
+        BitmapFont font = FontHelper.cardDescFont_L;
+        float width = FontHelper.getWidth(font, label, 0.8f);
+        hitbox.resize(width + 12 * Settings.scale, 28 * Settings.scale);
+        if (align.equals("left")) {
+            hitbox.move(EditableItem.getScreenX(x, renderX) + width / 2, EditableItem.getScreenY(y + 0.1f, renderY));
+        } else if (align.equals("right")) {
+            hitbox.move(EditableItem.getScreenX(x, renderX) - width / 2, EditableItem.getScreenY(y + 0.1f, renderY));
+        } else {
+            hitbox.move(EditableItem.getScreenX(x, renderX), EditableItem.getScreenY(y + 0.1f, renderY));
+        }
     }
 }

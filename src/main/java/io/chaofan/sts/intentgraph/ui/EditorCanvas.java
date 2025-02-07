@@ -8,20 +8,19 @@ import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import io.chaofan.sts.intentgraph.IntentGraphMod;
-import io.chaofan.sts.intentgraph.model.*;
+import io.chaofan.sts.intentgraph.model.editor.*;
+
+import java.util.ArrayList;
 
 public class EditorCanvas {
     private final float x;
     private final float top;
     private final float width;
     private final Toolbox toolbox;
-    private String monsterName;
-    private MonsterIntentGraph intentGraph;
-    private MonsterGraphDetail graphDetail;
-    private final Color boxColor = new Color(1, 1, 1, 0.5f);
+    private EditableMonsterGraphDetail graphDetail;
 
-    private Object hoveredItem;
-    private Object selectedItem;
+    private EditableItem hoveredItem;
+    private EditableItem selectedItem;
     private final Color hoverItemColor = new Color(1, 1, 1, 0.2f);
     private final Color selectedItemColor = new Color(1, 1, 0.3f, 0.2f);
 
@@ -32,14 +31,7 @@ public class EditorCanvas {
         this.toolbox = toolbox;
     }
 
-    public void setIntentGraph(MonsterIntentGraph intentGraph, String monsterName) {
-        this.intentGraph = intentGraph;
-        this.monsterName = monsterName;
-        this.hoveredItem = null;
-        this.selectedItem = null;
-    }
-
-    public void setGraphDetail(MonsterGraphDetail graphDetail) {
+    public void setGraphDetail(EditableMonsterGraphDetail graphDetail) {
         if (this.graphDetail != graphDetail) {
             this.graphDetail = graphDetail;
             this.hoveredItem = null;
@@ -50,32 +42,20 @@ public class EditorCanvas {
     public void update() {
         this.hoveredItem = null;
         if (this.graphDetail != null) {
-            float x = getGridX(InputHelper.mX);
-            float y = getGridY(InputHelper.mY);
-            if (this.graphDetail.icons != null) {
-                for (Icon icon : this.graphDetail.icons) {
-                    if (icon.x <= x && icon.x + 1 >= x && icon.y <= y && icon.y + 1 >= y) {
-                        this.hoveredItem = icon;
-                    }
-                }
-            }
-            if (this.graphDetail.iconGroups != null) {
-                for (IconGroup iconGroup : this.graphDetail.iconGroups) {
+            updateEditableItems(this.graphDetail.icons);
+            updateEditableItems(this.graphDetail.iconGroups);
+            updateEditableItems(this.graphDetail.arrows);
+            updateEditableItems(this.graphDetail.labels);
+        }
+    }
 
-                }
-            }
-            if (this.graphDetail.arrows != null) {
-                for (Arrow arrow : this.graphDetail.arrows) {
-
-                }
-            }
-            if (this.graphDetail.labels != null) {
-                for (Label label : this.graphDetail.labels) {
-
-                }
+    private <T extends EditableItem> void updateEditableItems(ArrayList<T> items) {
+        for (T item : items) {
+            item.update();
+            if (item.isHovered()) {
+                this.hoveredItem = item;
             }
         }
-
     }
 
     public void render(SpriteBatch sb) {
@@ -105,8 +85,8 @@ public class EditorCanvas {
             vLineNum++;
         } while (vLineFloat < vLineEnd);
 
-        if (this.intentGraph != null && this.graphDetail != null) {
-            this.intentGraph.render(sb, this.boxColor, this.graphDetail, this.x, this.top, this.monsterName);
+        if (this.graphDetail != null) {
+            this.graphDetail.render(sb);
         }
 
         FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardDescFont_N, "X: " + getGridX(InputHelper.mX), this.x, this.top + 64 * scale, Color.WHITE);
@@ -120,20 +100,18 @@ public class EditorCanvas {
         }
     }
 
-    private void renderItem(SpriteBatch sb, Object item, Color color) {
-        sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-        if (item instanceof Icon) {
-            this.renderIconBox(sb, (Icon) item, color);
-        }
-
-        sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    public float getGraphRenderX() {
+        return this.x + 32 * Settings.scale;
     }
 
-    private void renderIconBox(SpriteBatch sb, Icon icon, Color color) {
-        float x = getScreenX(icon.x);
-        float y = getScreenY(icon.y);
-        sb.setColor(color);
-        sb.draw(ImageMaster.WHITE_SQUARE_IMG, x, y - IntentGraphMod.GRID_SIZE * Settings.scale, IntentGraphMod.GRID_SIZE * Settings.scale, IntentGraphMod.GRID_SIZE * Settings.scale);
+    public float getGraphRenderY() {
+        return this.top - 64 * Settings.scale;
+    }
+
+    private void renderItem(SpriteBatch sb, EditableItem item, Color color) {
+        sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+        item.renderHitBoxes(sb, color);
+        sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     private float getGridX(float x) {
@@ -142,13 +120,5 @@ public class EditorCanvas {
 
     private float getGridY(float y) {
         return (this.top - y - 64 * Settings.scale) / (IntentGraphMod.GRID_SIZE * Settings.scale);
-    }
-
-    private float getScreenX(float x) {
-        return this.x + 32 * Settings.scale + x * IntentGraphMod.GRID_SIZE * Settings.scale;
-    }
-
-    private float getScreenY(float y) {
-        return this.top - 64 * Settings.scale - y * IntentGraphMod.GRID_SIZE * Settings.scale;
     }
 }

@@ -68,6 +68,34 @@ public class EditableMonsterGraphDetail implements DamageProvider {
         this.name = name;
     }
 
+    public EditableMonsterGraphDetail(float renderX, float renderY, EditableMonsterGraphDetail detail) {
+        this.ascensionLevel = detail.ascensionLevel;
+        this.width = detail.width;
+        this.height = detail.height;
+        for (Damage damage : detail.damages) {
+            Damage damageCopy = new Damage();
+            damageCopy.max = damage.max;
+            damageCopy.min = damage.min;
+            damageCopy.string = damage.string;
+            damages.add(damageCopy);
+        }
+        for (EditableIcon icon : detail.icons) {
+            icons.add(new EditableIcon(renderX, renderY, icon));
+        }
+        for (EditableIconGroup iconGroup : detail.iconGroups) {
+            iconGroups.add(new EditableIconGroup(renderX, renderY, iconGroup));
+        }
+        for (EditableArrow arrow : detail.arrows) {
+            arrows.add(new EditableArrow(renderX, renderY, arrow));
+        }
+        for (EditableLabel label : detail.labels) {
+            labels.add(new EditableLabel(renderX, renderY, label));
+        }
+        this.renderX = renderX;
+        this.renderY = renderY;
+        this.name = detail.name;
+    }
+
     public void render(SpriteBatch sb) {
         float scale = Settings.scale;
         float scale32 = 32 * scale;

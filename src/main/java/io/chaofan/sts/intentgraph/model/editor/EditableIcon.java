@@ -15,6 +15,8 @@ public class EditableIcon extends Icon implements EditableItem {
 
     private final Hitbox hitbox = new Hitbox(IntentGraphMod.GRID_SIZE * Settings.scale, IntentGraphMod.GRID_SIZE * Settings.scale);
 
+    private boolean isAttack = false;
+
     public EditableIcon(float renderX, float renderY, Icon icon) {
         this.x = icon.x;
         this.y = icon.y;
@@ -26,7 +28,7 @@ public class EditableIcon extends Icon implements EditableItem {
         this.attackCountString = icon.attackCountString;
         this.renderX = renderX;
         this.renderY = renderY;
-        updateHitBoxLocation();
+        updateHitBoxesLocation();
     }
 
     @Override
@@ -41,8 +43,7 @@ public class EditableIcon extends Icon implements EditableItem {
 
     @Override
     public void render(SpriteBatch sb, EditableMonsterGraphDetail graphDetail) {
-        this.render(graphDetail, renderX, renderY, sb);
-
+        this.isAttack = this.render(graphDetail, renderX, renderY, sb);
     }
 
     @Override
@@ -50,7 +51,12 @@ public class EditableIcon extends Icon implements EditableItem {
         return Collections.singleton(hitbox);
     }
 
-    private void updateHitBoxLocation() {
+    @Override
+    public void updateHitBoxesLocation() {
         this.hitbox.move(EditableItem.getScreenX(x + 0.5f, renderX), EditableItem.getScreenY(y + 0.5f, renderY));
+    }
+
+    public boolean isAttack() {
+        return isAttack;
     }
 }

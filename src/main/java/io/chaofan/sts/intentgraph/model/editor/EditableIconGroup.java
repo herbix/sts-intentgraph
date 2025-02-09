@@ -58,7 +58,8 @@ public class EditableIconGroup extends IconGroup implements EditableItem {
         return this.hitBoxes;
     }
 
-    private void updateHitBoxesLocation() {
+    @Override
+    public void updateHitBoxesLocation() {
         leftTop.move(EditableItem.getScreenX(x, renderX), EditableItem.getScreenY(y, renderY));
         rightTop.move(EditableItem.getScreenX(x + w, renderX), EditableItem.getScreenY(y, renderY));
         leftBottom.move(EditableItem.getScreenX(x, renderX), EditableItem.getScreenY(y + h, renderY));

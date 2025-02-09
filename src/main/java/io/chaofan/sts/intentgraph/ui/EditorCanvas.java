@@ -11,24 +11,31 @@ import io.chaofan.sts.intentgraph.IntentGraphMod;
 import io.chaofan.sts.intentgraph.model.editor.*;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class EditorCanvas {
     private final float x;
     private final float top;
     private final float width;
     private final Toolbox toolbox;
+    private final UndoRedoHelper undoHelper;
     private EditableMonsterGraphDetail graphDetail;
 
     private EditableItem hoveredItem;
     private EditableItem selectedItem;
     private final Color hoverItemColor = new Color(1, 1, 1, 0.2f);
-    private final Color selectedItemColor = new Color(1, 1, 0.3f, 0.2f);
+    private final Color selectedItemColor = new Color(1, 1, 0.3f, 0.5f);
 
-    public EditorCanvas(float x, float top, float width, Toolbox toolbox) {
+    private Toolbox.Tool lastTool;
+
+    private Consumer<EditorCanvas> onSelectedItemChange;
+
+    public EditorCanvas(float x, float top, float width, Toolbox toolbox, UndoRedoHelper undoHelper) {
         this.x = x;
         this.top = top;
         this.width = width;
         this.toolbox = toolbox;
+        this.undoHelper = undoHelper;
     }
 
     public void setGraphDetail(EditableMonsterGraphDetail graphDetail) {
@@ -40,21 +47,28 @@ public class EditorCanvas {
     }
 
     public void update() {
+        EditableItem oldSelectedItem = this.selectedItem;
         this.hoveredItem = null;
-        if (this.graphDetail != null) {
-            updateEditableItems(this.graphDetail.icons);
-            updateEditableItems(this.graphDetail.iconGroups);
-            updateEditableItems(this.graphDetail.arrows);
-            updateEditableItems(this.graphDetail.labels);
+        Toolbox.Tool tool = toolbox.getSelectedTool();
+        if (tool != lastTool) {
+            this.selectedItem = null;
+            lastTool = tool;
         }
-    }
-
-    private <T extends EditableItem> void updateEditableItems(ArrayList<T> items) {
-        for (T item : items) {
-            item.update();
-            if (item.isHovered()) {
-                this.hoveredItem = item;
+        if (InputHelper.justClickedRight && mouseInCanvas()) {
+            this.selectedItem = null;
+        }
+        if (this.graphDetail != null) {
+            switch (tool) {
+                case MOVE: updateMoveTool(); break;
+                case ICON: updateIconTool(); break;
+                case GROUP: updateGroupTool(); break;
+                case ARROW: updateArrowTool(); break;
+                case LABEL: updateLabelTool(); break;
+                case DELETE: updateDeleteTool(); break;
             }
+        }
+        if (oldSelectedItem != this.selectedItem && onSelectedItemChange != null) {
+            onSelectedItemChange.accept(this);
         }
     }
 
@@ -92,7 +106,7 @@ public class EditorCanvas {
         FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardDescFont_N, "X: " + getGridX(InputHelper.mX), this.x, this.top + 64 * scale, Color.WHITE);
         FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardDescFont_N, "Y: " + getGridY(InputHelper.mY), this.x, this.top + 32 * scale, Color.WHITE);
 
-        if (this.hoveredItem != null) {
+        if (this.hoveredItem != null && this.hoveredItem != this.selectedItem) {
             this.renderItem(sb, this.hoveredItem, this.hoverItemColor);
         }
         if (this.selectedItem != null) {
@@ -108,6 +122,18 @@ public class EditorCanvas {
         return this.top - 64 * Settings.scale;
     }
 
+    public EditableItem getSelectedItem() {
+        return selectedItem;
+    }
+
+    public EditableMonsterGraphDetail getGraphDetail() {
+        return graphDetail;
+    }
+
+    public void setOnSelectedItemChange(Consumer<EditorCanvas> onSelectedItemChange) {
+        this.onSelectedItemChange = onSelectedItemChange;
+    }
+
     private void renderItem(SpriteBatch sb, EditableItem item, Color color) {
         sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
         item.renderHitBoxes(sb, color);
@@ -120,5 +146,88 @@ public class EditorCanvas {
 
     private float getGridY(float y) {
         return (this.top - y - 64 * Settings.scale) / (IntentGraphMod.GRID_SIZE * Settings.scale);
+    }
+
+    private void updateMoveTool() {
+        updateEditableItems(this.graphDetail.icons);
+        updateEditableItems(this.graphDetail.iconGroups);
+        updateEditableItems(this.graphDetail.arrows);
+        updateEditableItems(this.graphDetail.labels);
+        if (InputHelper.justClickedLeft && mouseInCanvas()) {
+            this.selectedItem = this.hoveredItem;
+        }
+    }
+
+    private void updateIconTool() {
+        updateEditableItems(this.graphDetail.icons);
+        if (InputHelper.justClickedLeft && mouseInCanvas()) {
+            this.selectedItem = this.hoveredItem;
+        }
+    }
+
+    private void updateGroupTool() {
+        updateEditableItems(this.graphDetail.iconGroups);
+        if (InputHelper.justClickedLeft && mouseInCanvas()) {
+            this.selectedItem = this.hoveredItem;
+        }
+    }
+
+    private void updateArrowTool() {
+        updateEditableItems(this.graphDetail.arrows);
+        if (InputHelper.justClickedLeft && mouseInCanvas()) {
+            this.selectedItem = this.hoveredItem;
+        }
+    }
+
+    private void updateLabelTool() {
+        updateEditableItems(this.graphDetail.labels);
+        if (InputHelper.justClickedLeft && mouseInCanvas()) {
+            this.selectedItem = this.hoveredItem;
+        }
+    }
+
+    private void updateDeleteTool() {
+        updateEditableItems(this.graphDetail.icons);
+        updateEditableItems(this.graphDetail.iconGroups);
+        updateEditableItems(this.graphDetail.arrows);
+        updateEditableItems(this.graphDetail.labels);
+        if (InputHelper.justClickedLeft && this.hoveredItem != null) {
+            EditableItem item = this.hoveredItem;
+            ArrayList<?> list = getContainingList(item);
+            if (list != null) {
+                int index = list.indexOf(item);
+                if (index >= 0) {
+                    this.undoHelper.runAndPush(
+                            () -> list.remove(index),
+                            () -> ((ArrayList<EditableItem>) list).add(index, item));
+                }
+            }
+        }
+    }
+
+    private <T extends EditableItem> void updateEditableItems(ArrayList<T> items) {
+        for (T item : items) {
+            item.update();
+            if (item.isHovered()) {
+                this.hoveredItem = item;
+            }
+        }
+    }
+
+    private ArrayList<?> getContainingList(EditableItem hoveredItem) {
+        if (hoveredItem instanceof EditableIcon) {
+            return this.graphDetail.icons;
+        } else if (hoveredItem instanceof EditableIconGroup) {
+            return this.graphDetail.iconGroups;
+        } else if (hoveredItem instanceof EditableArrow) {
+            return this.graphDetail.arrows;
+        } else if (hoveredItem instanceof EditableLabel) {
+            return this.graphDetail.labels;
+        }
+        return null;
+    }
+
+    private boolean mouseInCanvas() {
+        return InputHelper.mX > this.x && InputHelper.mX < this.x + this.width && InputHelper.mY > 0 && InputHelper.mY < this.top;
     }
 }

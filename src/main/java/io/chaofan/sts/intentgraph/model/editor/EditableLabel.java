@@ -14,6 +14,8 @@ public class EditableLabel extends Label implements EditableItem {
     private final float renderX;
     private final float renderY;
 
+    public String localizedText;
+
     private final Hitbox hitbox = new Hitbox(0, 0);
 
     public EditableLabel(float renderX, float renderY, Label label) {
@@ -23,7 +25,7 @@ public class EditableLabel extends Label implements EditableItem {
         this.align = label.align;
         this.renderX = renderX;
         this.renderY = renderY;
-        updateHitBoxLocation();
+        updateHitBoxesLocation();
     }
 
     @Override
@@ -46,9 +48,17 @@ public class EditableLabel extends Label implements EditableItem {
         return Collections.singleton(hitbox);
     }
 
-    private void updateHitBoxLocation() {
+    @Override
+    public String getLocalizedString(String string) {
+        if (localizedText != null) {
+            return localizedText;
+        }
+        return localizedText = super.getLocalizedString(string);
+    }
+
+    public void updateHitBoxesLocation() {
         BitmapFont font = FontHelper.cardDescFont_L;
-        float width = FontHelper.getWidth(font, label, 0.8f);
+        float width = FontHelper.getWidth(font, getLocalizedString(label), 0.8f);
         hitbox.resize(width + 12 * Settings.scale, 28 * Settings.scale);
         if (align.equals("left")) {
             hitbox.move(EditableItem.getScreenX(x, renderX) + width / 2, EditableItem.getScreenY(y + 0.1f, renderY));

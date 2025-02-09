@@ -8,6 +8,7 @@ import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.helpers.TipHelper;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class Button {
@@ -19,6 +20,7 @@ public class Button {
     private final Hitbox hb;
     private boolean pressed;
     private Consumer<Button> onClick;
+    private BiConsumer<Button, SpriteBatch> onRender;
     private String title;
     private String description;
     private final Color inactiveColor = new Color(0.6f, 0.6f, 0.6f, 1F);
@@ -38,6 +40,10 @@ public class Button {
 
     public void setOnClick(Consumer<Button> onClick) {
         this.onClick = onClick;
+    }
+
+    public void setOnRender(BiConsumer<Button, SpriteBatch> onRender) {
+        this.onRender = onRender;
     }
 
     public void setTooltip(String title, String description) {
@@ -75,7 +81,22 @@ public class Button {
             sb.setColor(this.inactiveColor);
         }
 
-        sb.draw(this.img, this.x, this.y, this.width, this.height);
+        if (this.img != null) {
+            sb.draw(this.img, this.x, this.y, this.width, this.height);
+        }
+
+        if (this.onRender != null) {
+            this.onRender.accept(this, sb);
+        }
+
         this.hb.render(sb);
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
     }
 }

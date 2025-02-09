@@ -55,10 +55,12 @@ public class EditorControl {
     public void update() {
         save.update();
         exit.update();
-        if (showAdd) {
-            add.update();
-        } else {
-            remove.update();
+        if (ascension != 0) {
+            if (showAdd) {
+                add.update();
+            } else {
+                remove.update();
+            }
         }
         ascensionDown.update();
         ascensionUp.update();
@@ -67,10 +69,12 @@ public class EditorControl {
     public void render(SpriteBatch sb) {
         save.render(sb);
         exit.render(sb);
-        if (showAdd) {
-            add.render(sb);
-        } else {
-            remove.render(sb);
+        if (ascension != 0) {
+            if (showAdd) {
+                add.render(sb);
+            } else {
+                remove.render(sb);
+            }
         }
         ascensionDown.render(sb);
         ascensionUp.render(sb);

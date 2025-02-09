@@ -14,6 +14,7 @@ public interface EditableItem {
     void updateSelected();
     void render(SpriteBatch sb, EditableMonsterGraphDetail graphDetail);
     Collection<Hitbox> getHitBoxes();
+    void updateHitBoxesLocation();
 
     default void renderHitBoxes(SpriteBatch sb, Color color) {
         sb.setColor(color);
@@ -31,7 +32,6 @@ public interface EditableItem {
     default boolean isHovered() {
         return getHitBoxes().stream().anyMatch(hitbox -> hitbox.hovered);
     }
-
 
     static float getGridX(float x, float renderX) {
         return (x - renderX) / (IntentGraphMod.GRID_SIZE * Settings.scale);

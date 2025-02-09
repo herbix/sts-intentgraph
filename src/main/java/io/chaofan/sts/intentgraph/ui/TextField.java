@@ -140,7 +140,7 @@ public class TextField {
     }
 
     public boolean keyTyped(char character) {
-        if (character >= 32) {
+        if (character >= 32 && character != 127) {
             insertText(String.valueOf(character));
             return true;
         }
@@ -227,5 +227,21 @@ public class TextField {
 
     public String getText() {
         return text;
+    }
+
+    public float getFloat() {
+        try {
+            return Float.parseFloat(getText());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public int getInt() {
+        try {
+            return Integer.parseInt(getText());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

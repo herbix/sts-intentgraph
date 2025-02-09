@@ -20,7 +20,7 @@ public class Icon {
     public int attackCount;
     public String attackCountString;
 
-    public void render(DamageProvider damageProvider, float x, float y, SpriteBatch sb) {
+    public boolean render(DamageProvider damageProvider, float x, float y, SpriteBatch sb) {
         sb.setColor(Color.WHITE);
 
         float scale = Settings.scale;
@@ -51,9 +51,11 @@ public class Icon {
         }
 
         font.getData().setScale(1);
+
+        return isAttack;
     }
 
-    private boolean renderIconImage(DamageProvider damageProvider, SpriteBatch sb, Icon icon, float iconX, float iconY) {
+    public static boolean renderIconImage(DamageProvider damageProvider, SpriteBatch sb, Icon icon, float iconX, float iconY) {
         float scale = Settings.scale;
         float scale64 = scale * 64;
         float scale4 = scale * 4;
@@ -120,7 +122,7 @@ public class Icon {
         return isAttack;
     }
 
-    private Texture getAttackIntent(int damage) {
+    private static Texture getAttackIntent(int damage) {
         if (damage < 5) {
             return ImageMaster.INTENT_ATK_TIP_1;
         } else if (damage < 10) {

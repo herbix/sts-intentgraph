@@ -46,7 +46,8 @@ public class EditableArrow extends Arrow implements EditableItem {
         return this.hitBoxes;
     }
 
-    private void updateHitBoxesLocation() {
+    @Override
+    public void updateHitBoxesLocation() {
         this.hitBoxes.clear();
         if (path.length <= 3) {
             return;

@@ -20,6 +20,14 @@ public abstract class PropertiesControl {
     }
 
     protected <T> Consumer<TextField> changeFloatListener(Supplier<T> targetProvider, FloatGetter<T> getter, FloatSetter<T> setter) {
+        return changeFloatListener(targetProvider, getter, setter, null);
+    }
+
+    protected <T> Consumer<TextField> changeFloatListener(
+            Supplier<T> targetProvider,
+            FloatGetter<T> getter,
+            FloatSetter<T> setter,
+            Supplier<TextField> controlProvider) {
         return textField -> {
             T target = targetProvider.get();
             if (target == null) {
@@ -28,20 +36,22 @@ public abstract class PropertiesControl {
             float oldValue = getter.get(target);
             float newValue = textField.getFloat();
             undoRedoHelper.runAndPush(() -> {
+                TextField control = controlProvider == null ? textField : controlProvider.get();
                 setter.set(target, newValue);
                 if (target instanceof EditableItem) {
                     ((EditableItem) target).updateHitBoxesLocation();
                 }
                 if (target == targetProvider.get()) {
-                    textField.setText(String.valueOf(newValue));
+                    control.setText(String.valueOf(newValue));
                 }
             }, () -> {
+                TextField control = controlProvider == null ? textField : controlProvider.get();
                 setter.set(target, oldValue);
                 if (target instanceof EditableItem) {
                     ((EditableItem) target).updateHitBoxesLocation();
                 }
                 if (target == targetProvider.get()) {
-                    textField.setText(String.valueOf(oldValue));
+                    control.setText(String.valueOf(oldValue));
                 }
             });
         };
@@ -103,6 +113,34 @@ public abstract class PropertiesControl {
         };
     }
 
+    protected <T> Consumer<CheckBox> changeBoolListener(Supplier<T> targetProvider, BoolGetter<T> getter, BoolSetter<T> setter) {
+        return checkBox -> {
+            T target = targetProvider.get();
+            if (target == null) {
+                return;
+            }
+            boolean oldValue = getter.get(target);
+            boolean newValue = checkBox.isChecked();
+            undoRedoHelper.runAndPush(() -> {
+                setter.set(target, newValue);
+                if (target instanceof EditableItem) {
+                    ((EditableItem) target).updateHitBoxesLocation();
+                }
+                if (target == targetProvider.get()) {
+                    checkBox.setChecked(newValue);
+                }
+            }, () -> {
+                setter.set(target, oldValue);
+                if (target instanceof EditableItem) {
+                    ((EditableItem) target).updateHitBoxesLocation();
+                }
+                if (target == targetProvider.get()) {
+                    checkBox.setChecked(oldValue);
+                }
+            });
+        };
+    }
+
     public interface FloatGetter<T> {
         float get(T target);
     }
@@ -117,6 +155,14 @@ public abstract class PropertiesControl {
 
     public interface IntSetter<T> {
         void set(T target, int value);
+    }
+
+    public interface BoolGetter<T> {
+        boolean get(T target);
+    }
+
+    public interface BoolSetter<T> {
+        void set(T target, boolean value);
     }
 
     public interface Getter<T, R> {

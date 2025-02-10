@@ -18,6 +18,11 @@ public class EditableLabel extends Label implements EditableItem {
 
     private final Hitbox hitbox = new Hitbox(0, 0);
 
+    public EditableLabel(float renderX, float renderY) {
+        this.renderX = renderX;
+        this.renderY = renderY;
+    }
+
     public EditableLabel(float renderX, float renderY, Label label) {
         this.x = label.x;
         this.y = label.y;
@@ -67,5 +72,14 @@ public class EditableLabel extends Label implements EditableItem {
         } else {
             hitbox.move(EditableItem.getScreenX(x, renderX), EditableItem.getScreenY(y + 0.1f, renderY));
         }
+    }
+
+    public Label toLabel() {
+        Label label = new Label();
+        label.x = x;
+        label.y = y;
+        label.label = this.label;
+        label.align = align;
+        return label;
     }
 }

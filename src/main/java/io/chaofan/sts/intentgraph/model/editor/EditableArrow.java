@@ -18,6 +18,11 @@ public class EditableArrow extends Arrow implements EditableItem {
 
     private final List<Hitbox> hitBoxes = new ArrayList<>();
 
+    public EditableArrow(float renderX, float renderY) {
+        this.renderX = renderX;
+        this.renderY = renderY;
+    }
+
     public EditableArrow(float renderX, float renderY, Arrow arrow) {
         this.path = arrow.path.clone();
         this.instant = arrow.instant;
@@ -86,5 +91,12 @@ public class EditableArrow extends Arrow implements EditableItem {
         }
         endHitbox.move(EditableItem.getScreenX(startX, renderX), EditableItem.getScreenY(startY, renderY));
         this.hitBoxes.add(endHitbox);
+    }
+
+    public Arrow toArrow() {
+        Arrow arrow = new Arrow();
+        arrow.path = this.path.clone();
+        arrow.instant = this.instant;
+        return arrow;
     }
 }

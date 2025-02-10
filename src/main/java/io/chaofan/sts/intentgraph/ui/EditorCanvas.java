@@ -3,14 +3,17 @@ package io.chaofan.sts.intentgraph.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import io.chaofan.sts.intentgraph.IntentGraphMod;
 import io.chaofan.sts.intentgraph.model.editor.*;
 
 import java.util.ArrayList;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class EditorCanvas {
@@ -112,6 +115,18 @@ public class EditorCanvas {
         if (this.selectedItem != null) {
             this.renderItem(sb, this.selectedItem, this.selectedItemColor);
         }
+
+        Toolbox.Tool selectedTool = toolbox.getSelectedTool();
+        if (hoveredItem == null && selectedItem == null && mouseInCanvas() &&
+                (selectedTool == Toolbox.Tool.ICON || selectedTool == Toolbox.Tool.GROUP || selectedTool == Toolbox.Tool.ARROW || selectedTool == Toolbox.Tool.LABEL)) {
+            sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+            sb.setColor(this.hoverItemColor);
+            float x = getScreenX(MathUtils.round(getGridX(InputHelper.mX) * 2) / 2f);
+            float y = getScreenY(MathUtils.round(getGridY(InputHelper.mY) * 2) / 2f);
+            float size = IntentGraphMod.GRID_SIZE * scale;
+            sb.draw(ImageMaster.WHITE_SQUARE_IMG, x - size / 2, y - size / 2, size, size);
+            sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        }
     }
 
     public float getGraphRenderX() {
@@ -148,6 +163,14 @@ public class EditorCanvas {
         return (this.top - y - 64 * Settings.scale) / (IntentGraphMod.GRID_SIZE * Settings.scale);
     }
 
+    private float getScreenX(float x) {
+        return this.x + 32 * Settings.scale + x * IntentGraphMod.GRID_SIZE * Settings.scale;
+    }
+
+    private float getScreenY(float y) {
+        return this.top - 64 * Settings.scale - y * IntentGraphMod.GRID_SIZE * Settings.scale;
+    }
+
     private void updateMoveTool() {
         updateEditableItems(this.graphDetail.icons);
         updateEditableItems(this.graphDetail.iconGroups);
@@ -161,29 +184,93 @@ public class EditorCanvas {
     private void updateIconTool() {
         updateEditableItems(this.graphDetail.icons);
         if (InputHelper.justClickedLeft && mouseInCanvas()) {
-            this.selectedItem = this.hoveredItem;
+            InputHelper.justClickedLeft = false;
+            if (this.selectedItem != null || this.hoveredItem != null) {
+                this.selectedItem = this.hoveredItem;
+            } else {
+                this.insertItem(this.graphDetail.icons, (x, y) -> {
+                    EditableIcon icon = new EditableIcon(getGraphRenderX(), getGraphRenderY());
+                    icon.type = AbstractMonster.Intent.ATTACK;
+                    icon.x = x - 0.5f;
+                    icon.y = y - 0.5f;
+                    return icon;
+                });
+            }
         }
     }
 
     private void updateGroupTool() {
         updateEditableItems(this.graphDetail.iconGroups);
         if (InputHelper.justClickedLeft && mouseInCanvas()) {
-            this.selectedItem = this.hoveredItem;
+            InputHelper.justClickedLeft = false;
+            if (this.selectedItem != null || this.hoveredItem != null) {
+                this.selectedItem = this.hoveredItem;
+            } else {
+                this.insertItem(this.graphDetail.iconGroups, (x, y) -> {
+                    EditableIconGroup group = new EditableIconGroup(getGraphRenderX(), getGraphRenderY());
+                    group.x = x - 0.5f;
+                    group.y = y - 0.5f;
+                    group.w = 1;
+                    group.h = 1;
+                    return group;
+                });
+            }
         }
     }
 
     private void updateArrowTool() {
         updateEditableItems(this.graphDetail.arrows);
         if (InputHelper.justClickedLeft && mouseInCanvas()) {
-            this.selectedItem = this.hoveredItem;
+            InputHelper.justClickedLeft = false;
+            if (this.selectedItem != null || this.hoveredItem != null) {
+                this.selectedItem = this.hoveredItem;
+            } else {
+                this.insertItem(this.graphDetail.arrows, (x, y) -> {
+                    EditableArrow arrow = new EditableArrow(getGraphRenderX(), getGraphRenderY());
+                    arrow.path = new float[] {0, x - 0.5f, y, x + 0.5f};
+                    return arrow;
+                });
+            }
         }
     }
 
     private void updateLabelTool() {
         updateEditableItems(this.graphDetail.labels);
         if (InputHelper.justClickedLeft && mouseInCanvas()) {
-            this.selectedItem = this.hoveredItem;
+            InputHelper.justClickedLeft = false;
+            if (this.selectedItem != null || this.hoveredItem != null) {
+                this.selectedItem = this.hoveredItem;
+            } else {
+                this.insertItem(this.graphDetail.labels, (x, y) -> {
+                    EditableLabel label = new EditableLabel(getGraphRenderX(), getGraphRenderY());
+                    label.x = x;
+                    label.y = y;
+                    label.label = "Label";
+                    label.align = "middle";
+                    return label;
+                });
+            }
         }
+    }
+
+    private <T extends EditableItem> void insertItem(ArrayList<T> list, BiFunction<Float, Float, T> constructor) {
+        float x = MathUtils.round(getGridX(InputHelper.mX) * 2) / 2f;
+        float y = MathUtils.round(getGridY(InputHelper.mY) * 2) / 2f;
+        T item = constructor.apply(x, y);
+        item.updateHitBoxesLocation();
+        this.undoHelper.runAndPush(
+                () -> list.add(item),
+                () -> {
+                    list.remove(item);
+                    if (item == this.selectedItem) {
+                        this.selectedItem = null;
+                        if (this.onSelectedItemChange != null) {
+                            this.onSelectedItemChange.accept(this);
+                        }
+                    }
+                });
+        this.hoveredItem = item;
+        this.selectedItem = item;
     }
 
     private void updateDeleteTool() {

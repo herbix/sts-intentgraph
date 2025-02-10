@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.Arrays;
 
 public class MonsterGraphDetail implements DamageProvider {
-    private boolean initialized = false;
+    private transient boolean initialized = false;
 
     private static int nextId = 0;
 

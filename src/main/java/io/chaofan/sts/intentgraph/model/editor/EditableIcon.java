@@ -17,6 +17,11 @@ public class EditableIcon extends Icon implements EditableItem {
 
     private boolean isAttack = false;
 
+    public EditableIcon(float renderX, float renderY) {
+        this.renderX = renderX;
+        this.renderY = renderY;
+    }
+
     public EditableIcon(float renderX, float renderY, Icon icon) {
         this.x = icon.x;
         this.y = icon.y;
@@ -58,5 +63,18 @@ public class EditableIcon extends Icon implements EditableItem {
 
     public boolean isAttack() {
         return isAttack;
+    }
+
+    public Icon toIcon() {
+        Icon icon = new Icon();
+        icon.x = x;
+        icon.y = y;
+        icon.type = type;
+        icon.damageIndex = damageIndex;
+        icon.percentage = percentage;
+        icon.limit = limit;
+        icon.attackCount = attackCount;
+        icon.attackCountString = attackCountString;
+        return icon;
     }
 }

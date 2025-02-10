@@ -54,7 +54,7 @@ public class IconPropertiesControl extends PropertiesControl implements DamagePr
         this.damageMax = new TextField("Damage Max", x, top - 9 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
         this.damageString = new TextField("Damage Str", x, top - 10 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
         this.addDamage = new Button(EditIntentGraphScreen.getButtonImage(9), x + 450 * Settings.scale - 2 * TEXT_FIELD_HEIGHT, top - 7 * TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT);
-        this.removeDamage = new Button(EditIntentGraphScreen.getButtonImage(10), x + 450 * Settings.scale - TEXT_FIELD_HEIGHT, top - 7 * TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT);
+        this.removeDamage = new Button(EditIntentGraphScreen.getButtonImage(2), x + 450 * Settings.scale - TEXT_FIELD_HEIGHT, top - 7 * TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT);
 
         this.iconX.setOnChange(changeFloatListener(() -> icon, (i) -> i.x, (i, value) -> i.x = value));
         this.iconY.setOnChange(changeFloatListener(() -> icon, (i) -> i.y, (i, value) -> i.y = value));
@@ -144,7 +144,7 @@ public class IconPropertiesControl extends PropertiesControl implements DamagePr
         }
         for (int i = 0, intentButtonsLength = intentButtons.length; i < intentButtonsLength; i++) {
             Button intentButton = intentButtons[i];
-            if (icon.type.ordinal() == i) {
+            if (icon.type != null && icon.type.ordinal() == i) {
                 sb.setColor(1, 1, 1, 0.5f);
                 sb.draw(ImageMaster.WHITE_SQUARE_IMG,
                         intentButton.getX() + 8 * Settings.scale, intentButton.getY() + 8 * Settings.scale,

@@ -27,6 +27,11 @@ public class EditableIconGroup extends IconGroup implements EditableItem {
 
     private final List<Hitbox> hitBoxes = Arrays.asList(leftTop, rightTop, leftBottom, rightBottom, left, right, top, bottom);
 
+    public EditableIconGroup(float renderX, float renderY) {
+        this.renderX = renderX;
+        this.renderY = renderY;
+    }
+
     public EditableIconGroup(float renderX, float renderY, IconGroup iconGroup) {
         this.x = iconGroup.x;
         this.y = iconGroup.y;
@@ -72,5 +77,15 @@ public class EditableIconGroup extends IconGroup implements EditableItem {
         top.move(EditableItem.getScreenX(x + w / 2, renderX), EditableItem.getScreenY(y, renderY));
         bottom.resize(w * IntentGraphMod.GRID_SIZE * Settings.scale - BORDER_SIZE, BORDER_SIZE);
         bottom.move(EditableItem.getScreenX(x + w / 2, renderX), EditableItem.getScreenY(y + h, renderY));
+    }
+
+    public IconGroup toIconGroup() {
+        IconGroup iconGroup = new IconGroup();
+        iconGroup.x = x;
+        iconGroup.y = y;
+        iconGroup.w = w;
+        iconGroup.h = h;
+        iconGroup.hide = hide;
+        return iconGroup;
     }
 }

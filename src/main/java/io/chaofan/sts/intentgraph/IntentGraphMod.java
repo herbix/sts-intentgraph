@@ -53,6 +53,9 @@ public class IntentGraphMod implements
     private static final String TOGGLE_KEY = "ToggleIntentGraph";
     private static final String PRESS_ANY_KEY_TO_SET = "PressAnyKeyToSet";
 
+    public static final String INTENTGRAPH_INTENTS_DEV_JSON = "intentgraph-intents-dev.json";
+    public static final String INTENTGRAPH_INTENT_STRINGS_DEV_JSON = "intentgraph-intentStrings-dev.json";
+
     public static String getImagePath(String file) {
         return MOD_ID + "/images/" + file;
     }
@@ -259,7 +262,7 @@ public class IntentGraphMod implements
 
         Gson gson = new Gson();
         try {
-            String json = Gdx.files.internal("intentgraph-intents-dev.json").readString(String.valueOf(StandardCharsets.UTF_8));
+            String json = Gdx.files.local(INTENTGRAPH_INTENTS_DEV_JSON).readString(String.valueOf(StandardCharsets.UTF_8));
             Type intentType = (new TypeToken<Map<String, MonsterIntentGraph>>() {}).getType();
             intents.putAll(gson.fromJson(json, intentType));
         } catch (Exception ex) {
@@ -269,7 +272,7 @@ public class IntentGraphMod implements
         }
 
         try {
-            String json = Gdx.files.internal("intentgraph-intentStrings-dev.json").readString(String.valueOf(StandardCharsets.UTF_8));
+            String json = Gdx.files.local(INTENTGRAPH_INTENT_STRINGS_DEV_JSON).readString(String.valueOf(StandardCharsets.UTF_8));
             Type intentType = (new TypeToken<Map<String, String>>() {}).getType();
             intentStrings.putAll(gson.fromJson(json, intentType));
         } catch (Exception ex) {

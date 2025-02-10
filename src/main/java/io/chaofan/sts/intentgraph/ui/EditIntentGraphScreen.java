@@ -4,22 +4,32 @@ import basemod.BaseMod;
 import basemod.abstracts.CustomScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.evacipated.cardcrawl.modthespire.lib.SpireEnum;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import io.chaofan.sts.intentgraph.IntentGraphMod;
+import io.chaofan.sts.intentgraph.model.Damage;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
 import io.chaofan.sts.intentgraph.model.editor.*;
 import io.chaofan.sts.intentgraph.patches.DisableInputActionPatch;
 
+import java.io.FileNotFoundException;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 
 import static io.chaofan.sts.intentgraph.IntentGraphMod.getImagePath;
 
@@ -35,13 +45,20 @@ public class EditIntentGraphScreen extends CustomScreen {
     private final IconPropertiesControl iconPropertiesControl = new IconPropertiesControl(Settings.WIDTH - 500 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, undoHelper);
     private final IconGroupPropertiesControl iconGroupPropertiesControl = new IconGroupPropertiesControl(Settings.WIDTH - 500 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, undoHelper);
     private final LabelPropertiesControl labelPropertiesControl = new LabelPropertiesControl(Settings.WIDTH - 500 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, undoHelper);
+    private final ArrowPropertiesControl arrowPropertiesControl = new ArrowPropertiesControl(Settings.WIDTH - 500 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, undoHelper);
     private PropertiesControl propertyControl = null;
 
     private final HashMap<String, EditableMonsterIntentGraph> intents = new HashMap<>();
+    private String editingMonsterId;
     private EditableMonsterIntentGraph monsterIntentGraph;
+
+    private float saveTimer = 0;
+    private String saveString = "Saved";
+    private final Color saveTimerColor = Color.WHITE.cpy();
 
     public EditIntentGraphScreen() {
         editorControl.setOnExit(this::exit);
+        editorControl.setOnSave(this::save);
         editorControl.setOnAscensionChange(this::onAscensionChange);
         editorControl.setOnAdd(this::onAdd);
         editorControl.setOnRemove(this::onRemove);
@@ -57,6 +74,7 @@ public class EditIntentGraphScreen extends CustomScreen {
     private void open(String monsterId) {
         reopen();
 
+        editingMonsterId = monsterId;
         monsterIntentGraph = intents.get(monsterId);
         AbstractMonster monster = AbstractDungeon.getMonsters().monsters.stream().filter(m -> m.id.equals(monsterId)).findFirst().orElse(null);
         String monsterName = monster != null ? monster.name : "";
@@ -65,6 +83,7 @@ public class EditIntentGraphScreen extends CustomScreen {
             if (intentGraph == null) {
                 monsterIntentGraph = new EditableMonsterIntentGraph();
                 EditableMonsterGraphDetail graphDetail = new EditableMonsterGraphDetail(editorCanvas.getGraphRenderX(), editorCanvas.getGraphRenderY(), monsterName);
+                graphDetail.damages.add(new Damage());
                 for (int i = 0; i < 20; i++) {
                     monsterIntentGraph.graphs.put(i, graphDetail);
                 }
@@ -104,6 +123,13 @@ public class EditIntentGraphScreen extends CustomScreen {
 
     @Override
     public void update() {
+        if (saveTimer > 0) {
+            saveTimer -= Gdx.graphics.getDeltaTime();
+            if (saveTimer <= 0) {
+                saveTimer = 0;
+            }
+        }
+
         if (ComboBox.updateOpened()) {
             return;
         }
@@ -138,6 +164,17 @@ public class EditIntentGraphScreen extends CustomScreen {
             propertyControl.render(sb);
         }
 
+        if (saveTimer > 1) {
+            FontHelper.renderFontLeftDownAligned(sb, FontHelper.cardTitleFont, saveString,
+                    50 * Settings.scale, Settings.HEIGHT - 240 * Settings.scale,
+                    Color.WHITE);
+        } else if (saveTimer > 0) {
+            saveTimerColor.a = saveTimer;
+            FontHelper.renderFontLeftDownAligned(sb, FontHelper.cardTitleFont, saveString,
+                    50 * Settings.scale, Settings.HEIGHT - 210 * Settings.scale - 30 * Settings.scale * saveTimer,
+                    saveTimerColor);
+        }
+
         ComboBox.renderOpened(sb);
     }
 
@@ -155,6 +192,52 @@ public class EditIntentGraphScreen extends CustomScreen {
         editorCanvas.setGraphDetail(graphDetail);
         editorControl.setShowAdd(graphDetail.ascensionLevel != ascension);
         onCanvasSelectedItemChange(editorCanvas);
+    }
+
+    private void save() {
+        try {
+            Map<String, MonsterIntentGraph> intents = new HashMap<>();
+            Map<String, String> intentStrings = new HashMap<>();
+
+            Gson gson = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .create();
+            try {
+                String json = Gdx.files.local(IntentGraphMod.INTENTGRAPH_INTENTS_DEV_JSON).readString(String.valueOf(StandardCharsets.UTF_8));
+                Type intentType = (new TypeToken<Map<String, MonsterIntentGraph>>() {}).getType();
+                intents.putAll(gson.fromJson(json, intentType));
+            } catch (Exception ex) {
+                if (!ex.getMessage().contains("File not found") && !(ex.getCause() instanceof FileNotFoundException)) {
+                    throw ex;
+                }
+            }
+
+            try {
+                String json = Gdx.files.local(IntentGraphMod.INTENTGRAPH_INTENT_STRINGS_DEV_JSON).readString(String.valueOf(StandardCharsets.UTF_8));
+                Type intentType = (new TypeToken<Map<String, String>>() {}).getType();
+                intentStrings.putAll(gson.fromJson(json, intentType));
+            } catch (Exception ex) {
+                if (!ex.getMessage().contains("File not found") && !(ex.getCause() instanceof FileNotFoundException)) {
+                    throw ex;
+                }
+            }
+
+            intents.put(editingMonsterId, monsterIntentGraph.save());
+            Map<String, String> localizedStrings = monsterIntentGraph.getLocalizedStrings();
+            intentStrings.putAll(localizedStrings);
+
+            Gdx.files.local(IntentGraphMod.INTENTGRAPH_INTENTS_DEV_JSON).writeString(gson.toJson(intents), false);
+            Gdx.files.local(IntentGraphMod.INTENTGRAPH_INTENT_STRINGS_DEV_JSON).writeString(gson.toJson(intentStrings), false);
+
+            IntentGraphMod.instance.loadIntents();
+
+            saveTimer = 2;
+            saveString = "Saved";
+        } catch (Exception ex) {
+            IntentGraphMod.logger.info(ex);
+            saveTimer = 3;
+            saveString = "Save Failed";
+        }
     }
 
     private void exit() {
@@ -214,6 +297,9 @@ public class EditIntentGraphScreen extends CustomScreen {
         } else if (selectedItem instanceof EditableLabel) {
             labelPropertiesControl.setLabel((EditableLabel) selectedItem);
             propertyControl = labelPropertiesControl;
+        } else if (selectedItem instanceof EditableArrow) {
+            arrowPropertiesControl.setArrow((EditableArrow) selectedItem);
+            propertyControl = arrowPropertiesControl;
         } else {
             propertyControl = null;
         }

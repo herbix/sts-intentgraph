@@ -17,13 +17,13 @@ public class Button {
     private final float y;
     private final float width;
     private final float height;
-    private final Hitbox hb;
+    protected final Hitbox hb;
     private boolean pressed;
     private Consumer<Button> onClick;
     private BiConsumer<Button, SpriteBatch> onRender;
     private String title;
     private String description;
-    private final Color inactiveColor = new Color(0.6f, 0.6f, 0.6f, 1F);
+    protected final Color inactiveColor = new Color(0.6f, 0.6f, 0.6f, 1F);
 
     public Button(TextureRegion img, float x, float y, float width, float height) {
         this.img = img;

@@ -25,6 +25,8 @@ public class EditableMonsterGraphDetail implements DamageProvider {
     public ArrayList<EditableLabel> labels = new ArrayList<>();
 
     public EditableMonsterGraphDetail(float renderX, float renderY, String name) {
+        this.width = 4;
+        this.height = 3;
         this.renderX = renderX;
         this.renderY = renderY;
         this.name = name;

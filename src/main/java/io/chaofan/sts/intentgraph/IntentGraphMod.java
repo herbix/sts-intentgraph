@@ -24,6 +24,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
 import io.chaofan.sts.intentgraph.ui.EditIntentGraphScreen;
+import io.chaofan.sts.intentgraph.utils.IconRenderer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,10 +35,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SpireInitializer
 public class IntentGraphMod implements
@@ -64,6 +62,10 @@ public class IntentGraphMod implements
         return MOD_ID + "/localization/" + file;
     }
 
+    public static String getShaderPath(String file) {
+        return MOD_ID + "/shaders/" + file;
+    }
+
     public static final int GRID_SIZE = 80;
 
     public static EditIntentGraphScreen editIntentGraphScreen;
@@ -74,12 +76,22 @@ public class IntentGraphMod implements
     private static boolean showIntentGraph = true;
     private static final Set<String> unlockMonsterInNextCombat = new HashSet<>();
 
+    public static List<IconRenderer> iconRenderers = new ArrayList<>();
+
     public static void initialize() {
         logger.info("Initializing IntentGraphMod");
 
         IntentGraphMod mod = new IntentGraphMod();
         instance = mod;
         BaseMod.subscribe(mod);
+    }
+
+    public static void registerIconRenderer(IconRenderer iconRenderer) {
+        iconRenderers.add(iconRenderer);
+    }
+
+    public static void unregisterIconRenderer(IconRenderer iconRenderer) {
+        iconRenderers.remove(iconRenderer);
     }
 
     private String intentStringsPath;

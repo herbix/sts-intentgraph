@@ -65,9 +65,9 @@ public class EditableLabel extends Label implements EditableItem {
         BitmapFont font = FontHelper.cardDescFont_L;
         float width = FontHelper.getWidth(font, getLocalizedString(label), 0.8f);
         hitbox.resize(width + 12 * Settings.scale, 28 * Settings.scale);
-        if (align.equals("left")) {
+        if ("left".equals(align)) {
             hitbox.move(EditableItem.getScreenX(x, renderX) + width / 2, EditableItem.getScreenY(y + 0.1f, renderY));
-        } else if (align.equals("right")) {
+        } else if ("right".equals(align)) {
             hitbox.move(EditableItem.getScreenX(x, renderX) - width / 2, EditableItem.getScreenY(y + 0.1f, renderY));
         } else {
             hitbox.move(EditableItem.getScreenX(x, renderX), EditableItem.getScreenY(y + 0.1f, renderY));

@@ -9,6 +9,7 @@ import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import io.chaofan.sts.intentgraph.IntentGraphMod;
+import io.chaofan.sts.intentgraph.utils.IconRenderer;
 
 public class Icon {
     public float x;
@@ -56,6 +57,12 @@ public class Icon {
     }
 
     public static boolean renderIconImage(DamageProvider damageProvider, SpriteBatch sb, Icon icon, float iconX, float iconY) {
+        for (IconRenderer iconRenderer : IntentGraphMod.iconRenderers) {
+            if (iconRenderer.renderIconImage(damageProvider, sb, icon, iconX, iconY, IconRenderer.isAttack)) {
+                return IconRenderer.isAttack[0];
+            }
+        }
+
         float scale = Settings.scale;
         float scale64 = scale * 64;
         float scale4 = scale * 4;
@@ -133,8 +140,10 @@ public class Icon {
             return ImageMaster.INTENT_ATK_TIP_4;
         } else if (damage < 25) {
             return ImageMaster.INTENT_ATK_TIP_5;
+        } else if (damage < 30) {
+            return ImageMaster.INTENT_ATK_TIP_6;
         } else {
-            return damage < 30 ? ImageMaster.INTENT_ATK_TIP_6 : ImageMaster.INTENT_ATK_TIP_7;
+            return ImageMaster.INTENT_ATK_TIP_7;
         }
     }
 }

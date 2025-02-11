@@ -12,11 +12,14 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import io.chaofan.sts.intentgraph.IntentGraphMod;
 import io.chaofan.sts.intentgraph.model.editor.*;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class EditorCanvas {
+    private final static DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#####");
+
     private final float x;
     private final float top;
     private final float width;
@@ -106,8 +109,8 @@ public class EditorCanvas {
             this.graphDetail.render(sb);
         }
 
-        FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardDescFont_N, "X: " + getGridX(InputHelper.mX), this.x, this.top + 64 * scale, Color.WHITE);
-        FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardDescFont_N, "Y: " + getGridY(InputHelper.mY), this.x, this.top + 32 * scale, Color.WHITE);
+        FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardDescFont_N, "X: " + DECIMAL_FORMAT.format(getGridX(InputHelper.mX)), this.x, this.top + 64 * scale, Color.WHITE);
+        FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardDescFont_N, "Y: " + DECIMAL_FORMAT.format(getGridY(InputHelper.mY)), this.x, this.top + 32 * scale, Color.WHITE);
 
         if (this.hoveredItem != null && this.hoveredItem != this.selectedItem) {
             this.renderItem(sb, this.hoveredItem, this.hoverItemColor);
@@ -123,8 +126,9 @@ public class EditorCanvas {
             sb.setColor(this.hoverItemColor);
             float x = getScreenX(MathUtils.round(getGridX(InputHelper.mX) * 2) / 2f);
             float y = getScreenY(MathUtils.round(getGridY(InputHelper.mY) * 2) / 2f);
-            float size = IntentGraphMod.GRID_SIZE * scale;
-            sb.draw(ImageMaster.WHITE_SQUARE_IMG, x - size / 2, y - size / 2, size, size);
+            float width = IntentGraphMod.GRID_SIZE * scale;
+            float height = selectedTool == Toolbox.Tool.ARROW ? IntentGraphMod.GRID_SIZE * scale / 2 : IntentGraphMod.GRID_SIZE * scale;
+            sb.draw(ImageMaster.WHITE_SQUARE_IMG, x - width / 2, y - height / 2, width, height);
             sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         }
     }

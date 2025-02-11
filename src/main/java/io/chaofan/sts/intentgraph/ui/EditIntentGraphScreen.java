@@ -24,6 +24,8 @@ import io.chaofan.sts.intentgraph.model.Damage;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
 import io.chaofan.sts.intentgraph.model.editor.*;
 import io.chaofan.sts.intentgraph.patches.DisableInputActionPatch;
+import io.chaofan.sts.intentgraph.utils.BooleanIgnoreFalseTypeAdapter;
+import io.chaofan.sts.intentgraph.utils.IntegerIgnoreZeroTypeAdapter;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
@@ -150,6 +152,8 @@ public class EditIntentGraphScreen extends CustomScreen {
                 }
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
                 undoHelper.redo();
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+                save();
             }
         }
     }
@@ -201,6 +205,8 @@ public class EditIntentGraphScreen extends CustomScreen {
 
             Gson gson = new GsonBuilder()
                     .setPrettyPrinting()
+                    .registerTypeAdapter(Boolean.class, new BooleanIgnoreFalseTypeAdapter())
+                    .registerTypeAdapter(Integer.class, new IntegerIgnoreZeroTypeAdapter())
                     .create();
             try {
                 String json = Gdx.files.local(IntentGraphMod.INTENTGRAPH_INTENTS_DEV_JSON).readString(String.valueOf(StandardCharsets.UTF_8));

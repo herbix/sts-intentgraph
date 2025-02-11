@@ -158,3 +158,16 @@ Create a dev version of intent graph and reload it during game running.
    1. You can use `reloadintents -1` to reset to actual ascension level.
 7. Once debug is done, copy content of `*-dev.json` to `intents.json` file in your mod.
 8. Remove `*-dev.json`, rebuild your mod and test it.
+
+## Intent Graph Editor
+
+During game, you can open intent graph editor by following steps.
+
+1. Run game with intent graph mod enabled.
+2. Use `` ` `` opening console, then use command `fight <encounter id>` to fight the monster you want to edit.
+3. Use command `editintent <monster id>` to open editor.
+4. Edit, then save.
+   1. `Ctrl+Z`: Undo
+   2. `Ctrl+Y` or `Ctrl+Shift+Z`: Redo
+   3. `Ctrl+S`: Save
+5. Saved data will be stored in `intentgraph-intents-dev.json` and `intentgraph-intentStrings-dev.json`. You can move content to your mod after debug.

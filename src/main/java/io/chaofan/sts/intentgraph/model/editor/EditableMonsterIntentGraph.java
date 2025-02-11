@@ -70,11 +70,22 @@ public class EditableMonsterIntentGraph {
         detail.ascensionLevel = editableDetail.ascensionLevel;
         detail.width = editableDetail.width;
         detail.height = editableDetail.height;
-        detail.damages = editableDetail.damages.toArray(new Damage[0]);
+        detail.damages = editableDetail.damages.stream().map(this::convertDamage).toArray(Damage[]::new);
         detail.icons = editableDetail.icons.stream().map(EditableIcon::toIcon).toArray(Icon[]::new);
         detail.iconGroups = editableDetail.iconGroups.stream().map(EditableIconGroup::toIconGroup).toArray(IconGroup[]::new);
         detail.arrows = editableDetail.arrows.stream().map(EditableArrow::toArrow).toArray(Arrow[]::new);
         detail.labels = editableDetail.labels.stream().map(EditableLabel::toLabel).toArray(Label[]::new);
         return detail;
+    }
+
+    private Damage convertDamage(Damage damage) {
+        if (damage != null) {
+            Damage newDamage = new Damage();
+            newDamage.min = damage.min;
+            newDamage.max = damage.max == damage.min ? 0 : damage.max;
+            newDamage.string = damage.string;
+            return newDamage;
+        }
+        return null;
     }
 }

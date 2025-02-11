@@ -6,6 +6,7 @@ import com.megacrit.cardcrawl.map.MapRoomNode;
 import io.chaofan.sts.intentgraph.ui.EditIntentGraphScreen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class EditIntentCommand extends ConsoleCommand {
     public EditIntentCommand() {
@@ -38,8 +39,8 @@ public class EditIntentCommand extends ConsoleCommand {
         if (AbstractDungeon.screen == EditIntentGraphScreen.Enums.EDIT_INTENT_GRAPH_SCREEN) {
             AbstractDungeon.closeCurrentScreen();
         } else if (depth < args.length) {
-            String monsterId = args[depth];
-            if (monsterId != null) {
+            String monsterId = String.join(" ", Arrays.copyOfRange(args, depth, args.length));
+            if (!monsterId.trim().isEmpty()) {
                 IntentGraphMod.editIntentGraphScreen.openScreen(monsterId);
             }
         }

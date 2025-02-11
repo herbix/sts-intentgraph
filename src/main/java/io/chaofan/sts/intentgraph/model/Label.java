@@ -23,9 +23,9 @@ public class Label {
         String string = this.label;
         String localizedString = getLocalizedString(string);
 
-        if (align != null && align.equals("left")) {
+        if ("left".equals(align)) {
             FontHelper.renderFontLeftTopAligned(sb, font, localizedString, labelX, labelY, Color.WHITE);
-        } else if (align != null && align.equals("right")){
+        } else if ("right".equals(align)){
             FontHelper.renderFontRightTopAligned(sb, font, localizedString, labelX, labelY, Color.WHITE);
         } else {
             FontHelper.renderFontCenteredTopAligned(sb, font, localizedString, labelX, labelY, Color.WHITE);

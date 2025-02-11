@@ -5,15 +5,20 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
+import io.chaofan.sts.intentgraph.IntentGraphMod;
 
 import java.util.function.Consumer;
 
 public class TextField {
+    private static ShaderProgram shader;
+    private static boolean shaderLoaded = false;
+
     private static final float TEXT_Y_OFFSET = 27 * Settings.scale;
     public static TextField hoverField;
 
@@ -51,11 +56,14 @@ public class TextField {
         if (InputHelper.justClickedLeft) {
             if (this.hb.hovered) {
                 InputHelper.justClickedLeft = false;
-                if (TextField.hoverField != null) {
-                    TextField.hoverField.triggerOnChange();
+                clickToSetCursorLocation(InputHelper.mX);
+                if (TextField.hoverField != this) {
+                    if (TextField.hoverField != null) {
+                        TextField.hoverField.triggerOnChange();
+                    }
+                    TextField.hoverField = this;
+                    this.cursorTimer = 1.5f;
                 }
-                TextField.hoverField = this;
-                this.cursorTimer = 1.5f;
             } else if (TextField.hoverField == this) {
                 triggerOnChange();
                 TextField.hoverField = null;
@@ -114,7 +122,21 @@ public class TextField {
             }
         }
 
+        loadShader();
+        if (shader != null) {
+            sb.setShader(shader);
+            shader.setUniformf("u_boxLeftBottom", x + labelWidth, y);
+            shader.setUniformf("u_boxRightTop", x + labelWidth + textWidth, y + height);
+        }
+
         FontHelper.renderFontLeftTopAligned(sb, textFont, text, x + labelWidth + textOffsetX, y + TEXT_Y_OFFSET, color);
+        if (FontHelper.layout.width + textOffsetX < textWidth) {
+            textOffsetX = Math.min(0, textWidth - FontHelper.layout.width);
+        }
+
+        if (shader != null) {
+            sb.setShader(null);
+        }
 
         this.hb.render(sb);
     }
@@ -215,6 +237,40 @@ public class TextField {
         }
     }
 
+    private void clickToSetCursorLocation(float mouseX) {
+        float xInText = mouseX - (x + labelWidth + textOffsetX);
+        float roughTextWidth = textWidth + textOffsetX;
+        int estimatedCursor = Math.max(Math.min(Math.round(xInText / roughTextWidth * text.length()), text.length()), 0);
+        BitmapFont textFont = FontHelper.cardDescFont_L;
+
+        float lastCharWidth = 0;
+        float estimatedCursorOffset = FontHelper.getWidth(textFont, text.substring(0, estimatedCursor), 1);
+        if (estimatedCursorOffset > xInText) {
+            while (estimatedCursor > 0 && estimatedCursorOffset > xInText) {
+                lastCharWidth = FontHelper.getWidth(textFont, text.substring(estimatedCursor - 1, estimatedCursor), 1);
+                estimatedCursor--;
+                estimatedCursorOffset -= lastCharWidth;
+            }
+            if (lastCharWidth > 0 && (xInText - estimatedCursorOffset) / lastCharWidth > 0.5f) {
+                estimatedCursor++;
+                estimatedCursorOffset += lastCharWidth;
+            }
+        } else if (estimatedCursorOffset < xInText) {
+            while (estimatedCursor < text.length() && estimatedCursorOffset < xInText) {
+                lastCharWidth = FontHelper.getWidth(textFont, text.substring(estimatedCursor, estimatedCursor + 1), 1);
+                estimatedCursor++;
+                estimatedCursorOffset += lastCharWidth;
+            }
+            if (lastCharWidth > 0 && (estimatedCursorOffset - xInText) / lastCharWidth > 0.5f) {
+                estimatedCursor--;
+                estimatedCursorOffset -= lastCharWidth;
+            }
+        }
+
+        cursor = estimatedCursor;
+        cursorRenderX = estimatedCursorOffset;
+    }
+
     public void setOnChange(Consumer<TextField> onChange) {
         this.onChange = onChange;
     }
@@ -242,6 +298,19 @@ public class TextField {
             return Integer.parseInt(getText());
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    private static void loadShader() {
+        if (!shaderLoaded) {
+            shader = new ShaderProgram(Gdx.files.internal(IntentGraphMod.getShaderPath("common.vs")), Gdx.files.internal(IntentGraphMod.getShaderPath("textField.fs")));
+            shaderLoaded = true;
+            if (!shader.isCompiled()) {
+                IntentGraphMod.logger.warn("Shader compile failed: {}", shader.getLog());
+                shader = null;
+            } else {
+                IntentGraphMod.logger.info("Shader compiled: {}", shader.getLog());
+            }
         }
     }
 }

@@ -21,18 +21,23 @@ public class Label {
         BitmapFont font = FontHelper.cardDescFont_L;
         font.getData().setScale(0.8f);
         String string = this.label;
-        String localizedString = IntentGraphMod.instance.intentStrings.get(string);
-        if (localizedString != null) {
-            string = localizedString;
-        }
+        String localizedString = getLocalizedString(string);
 
-        if (align != null && align.equals("left")) {
-            FontHelper.renderFontLeftTopAligned(sb, font, string, labelX, labelY, Color.WHITE);
-        } else if (align != null && align.equals("right")){
-            FontHelper.renderFontRightTopAligned(sb, font, string, labelX, labelY, Color.WHITE);
+        if ("left".equals(align)) {
+            FontHelper.renderFontLeftTopAligned(sb, font, localizedString, labelX, labelY, Color.WHITE);
+        } else if ("right".equals(align)){
+            FontHelper.renderFontRightTopAligned(sb, font, localizedString, labelX, labelY, Color.WHITE);
         } else {
-            FontHelper.renderFontCenteredTopAligned(sb, font, string, labelX, labelY, Color.WHITE);
+            FontHelper.renderFontCenteredTopAligned(sb, font, localizedString, labelX, labelY, Color.WHITE);
         }
         font.getData().setScale(1);
+    }
+
+    protected String getLocalizedString(String string) {
+        String localizedString = IntentGraphMod.instance.intentStrings.get(string);
+        if (localizedString != null) {
+            return localizedString;
+        }
+        return string;
     }
 }

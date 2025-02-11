@@ -23,6 +23,8 @@ import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
+import io.chaofan.sts.intentgraph.ui.EditIntentGraphScreen;
+import io.chaofan.sts.intentgraph.utils.IconRenderer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,10 +35,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SpireInitializer
 public class IntentGraphMod implements
@@ -52,6 +51,9 @@ public class IntentGraphMod implements
     private static final String TOGGLE_KEY = "ToggleIntentGraph";
     private static final String PRESS_ANY_KEY_TO_SET = "PressAnyKeyToSet";
 
+    public static final String INTENTGRAPH_INTENTS_DEV_JSON = "intentgraph-intents-dev.json";
+    public static final String INTENTGRAPH_INTENT_STRINGS_DEV_JSON = "intentgraph-intentStrings-dev.json";
+
     public static String getImagePath(String file) {
         return MOD_ID + "/images/" + file;
     }
@@ -60,7 +62,13 @@ public class IntentGraphMod implements
         return MOD_ID + "/localization/" + file;
     }
 
+    public static String getShaderPath(String file) {
+        return MOD_ID + "/shaders/" + file;
+    }
+
     public static final int GRID_SIZE = 80;
+
+    public static EditIntentGraphScreen editIntentGraphScreen;
 
     private static SpireConfig config;
     private static boolean unlockAll = false;
@@ -68,12 +76,22 @@ public class IntentGraphMod implements
     private static boolean showIntentGraph = true;
     private static final Set<String> unlockMonsterInNextCombat = new HashSet<>();
 
+    public static List<IconRenderer> iconRenderers = new ArrayList<>();
+
     public static void initialize() {
         logger.info("Initializing IntentGraphMod");
 
         IntentGraphMod mod = new IntentGraphMod();
         instance = mod;
         BaseMod.subscribe(mod);
+    }
+
+    public static void registerIconRenderer(IconRenderer iconRenderer) {
+        iconRenderers.add(iconRenderer);
+    }
+
+    public static void unregisterIconRenderer(IconRenderer iconRenderer) {
+        iconRenderers.remove(iconRenderer);
     }
 
     private String intentStringsPath;
@@ -92,12 +110,17 @@ public class IntentGraphMod implements
         BaseMod.registerModBadge(badgeTexture, "Intent Graph", "Chaofan", "", settingsPanel);
 
         loadIntents();
+
+        editIntentGraphScreen = new EditIntentGraphScreen();
+        BaseMod.addCustomScreen(editIntentGraphScreen);
+
         ConsoleCommand.addCommand("reloadintents", ReloadIntentsCommand.class);
+        ConsoleCommand.addCommand("editintent", EditIntentCommand.class);
     }
 
     @Override
     public void receivePostRender(SpriteBatch spriteBatch) {
-        if (AbstractDungeon.getCurrMapNode() == null) {
+        if (AbstractDungeon.getCurrMapNode() == null || AbstractDungeon.isScreenUp) {
             return;
         }
 
@@ -130,6 +153,10 @@ public class IntentGraphMod implements
     @Override
     public void receivePostDeath() {
         unlockMonstersInCurrentCombat();
+    }
+
+    public MonsterIntentGraph getIntentGraph(String monsterId) {
+        return intents.get(monsterId);
     }
 
     private void unlockMonstersInCurrentCombat() {
@@ -247,7 +274,7 @@ public class IntentGraphMod implements
 
         Gson gson = new Gson();
         try {
-            String json = Gdx.files.internal("intentgraph-intents-dev.json").readString(String.valueOf(StandardCharsets.UTF_8));
+            String json = Gdx.files.local(INTENTGRAPH_INTENTS_DEV_JSON).readString(String.valueOf(StandardCharsets.UTF_8));
             Type intentType = (new TypeToken<Map<String, MonsterIntentGraph>>() {}).getType();
             intents.putAll(gson.fromJson(json, intentType));
         } catch (Exception ex) {
@@ -257,7 +284,7 @@ public class IntentGraphMod implements
         }
 
         try {
-            String json = Gdx.files.internal("intentgraph-intentStrings-dev.json").readString(String.valueOf(StandardCharsets.UTF_8));
+            String json = Gdx.files.local(INTENTGRAPH_INTENT_STRINGS_DEV_JSON).readString(String.valueOf(StandardCharsets.UTF_8));
             Type intentType = (new TypeToken<Map<String, String>>() {}).getType();
             intentStrings.putAll(gson.fromJson(json, intentType));
         } catch (Exception ex) {

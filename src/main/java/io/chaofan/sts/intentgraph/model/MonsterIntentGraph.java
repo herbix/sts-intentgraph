@@ -3,6 +3,7 @@ package io.chaofan.sts.intentgraph.model;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.google.gson.Gson;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
@@ -35,14 +36,16 @@ public class MonsterIntentGraph {
     public MonsterGraphDetail a1;
     public MonsterGraphDetail a2;
 
-    private void initMonsterGraphDetail(AbstractMonster monster) {
+    public void initMonsterGraphDetail(AbstractMonster.EnemyType type) {
+        if (initialized) {
+            return;
+        }
         initialized = true;
 
         if (a0 != null) {
             graphs.put(0, a0);
         }
 
-        AbstractMonster.EnemyType type = monster.type;
         if (type == AbstractMonster.EnemyType.NORMAL) {
             if (a1 != null) {
                 graphs.put(2, a1);
@@ -86,43 +89,64 @@ public class MonsterIntentGraph {
         graphLibrary = new GraphLibrary(graphList);
     }
 
+    @Override
+    public MonsterIntentGraph clone() {
+        Gson gson = new Gson();
+        MonsterIntentGraph newInstance = gson.fromJson(gson.toJson(this), MonsterIntentGraph.class);
+        if (this.initialized) {
+            newInstance.initialized = true;
+            newInstance.graphLibrary = new GraphLibrary(newInstance.graphList);
+        }
+        return newInstance;
+    }
+
+    public GraphLibrary getGraphLibrary() {
+        return graphLibrary;
+    }
+
     public void render(AbstractMonster monster, SpriteBatch sb) {
         if (!initialized) {
-            initMonsterGraphDetail(monster);
+            initMonsterGraphDetail(monster.type);
         }
 
+        String name = monster.name;
+        float x = monster.hb.cX - 32 * Settings.scale - width * IntentGraphMod.GRID_SIZE * Settings.scale / 2;
+        float y = Settings.HEIGHT - 80 * Settings.scale;
         MonsterGraphDetail graphDetail = graphLibrary.get(monster);
         if (graphDetail == null) {
             return;
         }
 
+        render(sb, Color.WHITE, graphDetail, x, y, name);
+    }
+
+    public void render(SpriteBatch sb, Color boxColor, MonsterGraphDetail graphDetail, float x, float y, String name) {
         float scale = Settings.scale;
         float scale32 = 32 * scale;
 
         float width = graphDetail.width > 0 ? graphDetail.width : this.width;
         float height = graphDetail.height > 0 ? graphDetail.height : this.height;
-        float x = monster.hb.cX - scale32 - width * IntentGraphMod.GRID_SIZE * scale / 2;
-        float y = Settings.HEIGHT - 80 * scale;
 
-        renderBox(Color.WHITE, x, y, width * IntentGraphMod.GRID_SIZE * scale, (height * IntentGraphMod.GRID_SIZE + 32) * scale, sb);
-        FontHelper.renderFontLeftTopAligned(sb, FontHelper.tipHeaderFont, monster.name, x + 20 * scale, y - 20 * scale, Color.WHITE);
+        renderBox(boxColor, x, y, width * IntentGraphMod.GRID_SIZE * scale, (height * IntentGraphMod.GRID_SIZE + 32) * scale, sb);
+        FontHelper.renderFontLeftTopAligned(sb, FontHelper.tipHeaderFont, name, x + 20 * scale, y - 20 * scale, Color.WHITE);
 
+        sb.setColor(Color.WHITE);
         int renderAscensionLevel = graphDetail.ascensionLevel;
         if (renderAscensionLevel > 0) {
-            this.renderAscensionLevel(renderAscensionLevel, x + scale32 + (width * IntentGraphMod.GRID_SIZE + 12) * scale, y - 20 * scale, sb);
+            renderAscensionLevel(renderAscensionLevel, x + scale32 + (width * IntentGraphMod.GRID_SIZE + 12) * scale, y - 20 * scale, sb);
         }
 
         graphDetail.render(x + scale32, y - scale32 * 2, sb);
     }
 
-    private void renderAscensionLevel(int renderAscensionLevel, float x, float y, SpriteBatch sb) {
+    public static void renderAscensionLevel(int renderAscensionLevel, float x, float y, SpriteBatch sb) {
         float scale = Settings.scale;
         float scale64 = 64 * scale;
         FontHelper.renderFontRightTopAligned(sb, FontHelper.tipHeaderFont, Integer.toString(renderAscensionLevel), x, y, Settings.RED_TEXT_COLOR);
         sb.draw(ImageMaster.TP_ASCENSION, x - 54 * scale - FontHelper.layout.width, y - 42 * scale, scale64, scale64);
     }
 
-    private void renderBox(Color color, float x, float y, float w, float h, SpriteBatch sb) {
+    public static void renderBox(Color color, float x, float y, float w, float h, SpriteBatch sb) {
         sb.setColor(color);
         float scale = Settings.scale;
         float scale32 = 32 * scale;

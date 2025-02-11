@@ -16,6 +16,7 @@ public class GraphLibrary implements IRuleContext {
     private final List<RuleGraphPair> ruleGraphPairs = new ArrayList<>();
 
     private AbstractMonster processingMonster;
+    private int overwriteAscension = -1;
 
     public GraphLibrary(List<MonsterGraphDetail> graphList) {
         init(graphList);
@@ -33,6 +34,10 @@ public class GraphLibrary implements IRuleContext {
         } finally {
             processingMonster = null;
         }
+    }
+
+    public void setOverwriteAscension(int overwriteAscension) {
+        this.overwriteAscension = overwriteAscension;
     }
 
     private void init(List<MonsterGraphDetail> graphList) {
@@ -67,9 +72,10 @@ public class GraphLibrary implements IRuleContext {
     }
 
     private int getAscensionLevel() {
-        return IntentGraphMod.instance.overwriteAscension >= 0 ?
+        return overwriteAscension >= 0 ? overwriteAscension :
+                (IntentGraphMod.instance.overwriteAscension >= 0 ?
                 IntentGraphMod.instance.overwriteAscension :
-                AbstractDungeon.ascensionLevel;
+                AbstractDungeon.ascensionLevel);
     }
 
     private int getActNum() {

@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.Arrays;
 
-public class MonsterGraphDetail {
-    private boolean initialized = false;
+public class MonsterGraphDetail implements DamageProvider {
+    private transient boolean initialized = false;
 
     private static int nextId = 0;
 
@@ -142,5 +142,10 @@ public class MonsterGraphDetail {
             }
             iconGroup.render(x, y, sb);
         }
+    }
+
+    @Override
+    public Damage getDamage(int index) {
+        return this.damages[index];
     }
 }

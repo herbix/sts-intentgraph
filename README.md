@@ -171,3 +171,10 @@ During game, you can open intent graph editor by following steps.
    2. `Ctrl+Y` or `Ctrl+Shift+Z`: Redo
    3. `Ctrl+S`: Save
 5. Saved data will be stored in `intentgraph-intents-dev.json` and `intentgraph-intentStrings-dev.json`. You can move content to your mod after debug.
+
+## Customize Intent Icon
+
+Use `IntentGraphMod.registerIconRenderer()` to customize intent icon rendering.
+
+See [Icon.renderIconImage](https://github.com/chaofan-stsmods/intentgraph/blob/intentgraph/src/main/java/io/chaofan/sts/intentgraph/model/Icon.java#L59) for details.
+

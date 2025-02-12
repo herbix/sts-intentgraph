@@ -1,0 +1,56 @@
+{
+  "intentgraph:EditIntentScreen": {
+    "TEXT": [
+      "Save (Ctrl+S)",
+      "Save current graph to local file.",
+      "Exit",
+      "Exit editor. Unsaved changes will be kept in memory.",
+      "Add Graph",
+      "Add graph for current ascension.",
+      "Remove Graph",
+      "Remove graph for current ascension.",
+      "Undo (Ctrl+Z)",
+      "Undo last action.",
+      "Redo (Ctrl+Y)",
+      "Redo last action.",
+      "Edit",
+      "Select and edit any items in the graph.",
+      "Icon",
+      "Add, select and edit icons in the graph.",
+      "Icon Group",
+      "Add, select and edit icon groups in the graph.",
+      "Arrow",
+      "Add, select and edit arrows in the graph.",
+      "Text",
+      "Add, select and edit texts in the graph.",
+      "Delete",
+      "Click to delete any items."
+    ]
+  },
+  "intentgraph:EditIntentScreenProperties": {
+    "TEXT": [
+      "Graph Width",
+      "Graph Height",
+      "Chance",
+      "Limit",
+      "#Attack",
+      "#Attack Str",
+      "Damage",
+      "Damage Min",
+      "Damage Max",
+      "Damage Str",
+      "Width",
+      "Height",
+      "Align",
+      "Txt",
+      "Localized Txt",
+      "Show Localized",
+      "Horizontal",
+      "Instant",
+      "Point %d",
+      "Left",
+      "Middle",
+      "Right"
+    ]
+  }
+}

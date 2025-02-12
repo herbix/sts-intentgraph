@@ -1,6 +1,7 @@
 package io.chaofan.sts.intentgraph.ui;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import io.chaofan.sts.intentgraph.model.editor.EditableItem;
 import io.chaofan.sts.intentgraph.model.editor.UndoRedoHelper;
@@ -8,6 +9,8 @@ import io.chaofan.sts.intentgraph.model.editor.UndoRedoHelper;
 import java.util.function.*;
 
 public abstract class PropertiesControl {
+    protected static final String[] TEXT = CardCrawlGame.languagePack.getUIString("intentgraph:EditIntentScreenProperties").TEXT;
+
     protected static final float TEXT_FIELD_HEIGHT = 42 * Settings.scale;
     protected final UndoRedoHelper undoRedoHelper;
 
@@ -36,21 +39,21 @@ public abstract class PropertiesControl {
             float oldValue = getter.get(target);
             float newValue = textField.getFloat();
             undoRedoHelper.runAndPush(() -> {
-                TextField control = controlProvider == null ? textField : controlProvider.get();
                 setter.set(target, newValue);
                 if (target instanceof EditableItem) {
                     ((EditableItem) target).updateHitBoxesLocation();
                 }
                 if (target == targetProvider.get()) {
+                    TextField control = controlProvider == null ? textField : controlProvider.get();
                     control.setText(String.valueOf(newValue));
                 }
             }, () -> {
-                TextField control = controlProvider == null ? textField : controlProvider.get();
                 setter.set(target, oldValue);
                 if (target instanceof EditableItem) {
                     ((EditableItem) target).updateHitBoxesLocation();
                 }
                 if (target == targetProvider.get()) {
+                    TextField control = controlProvider == null ? textField : controlProvider.get();
                     control.setText(String.valueOf(oldValue));
                 }
             });

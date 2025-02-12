@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.helpers.TipHelper;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
@@ -70,7 +71,7 @@ public class Button {
             }
         }
         if (this.hb.hovered && !this.pressed && this.title != null && this.description != null) {
-            TipHelper.renderGenericTip(this.x, this.y, this.title, this.description);
+            TipHelper.renderGenericTip(this.x, this.y - 40 * Settings.scale, this.title, this.description);
         }
     }
 

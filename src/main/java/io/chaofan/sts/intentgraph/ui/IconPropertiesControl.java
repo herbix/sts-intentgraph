@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class IconPropertiesControl extends PropertiesControl implements DamageProvider {
-    private final float x;
-    private final float top;
     private final TextField iconX;
     private final TextField iconY;
     private final TextField percentage;
@@ -41,18 +39,16 @@ public class IconPropertiesControl extends PropertiesControl implements DamagePr
 
     public IconPropertiesControl(float x, float top, UndoRedoHelper undoRedoHelper) {
         super(undoRedoHelper);
-        this.x = x;
-        this.top = top;
         this.iconX = new TextField("X", x, top - TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
         this.iconY = new TextField("Y", x, top - 2 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.percentage = new TextField("Percentage", x, top - 3 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.limit = new TextField("Limit", x, top - 4 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.attackCount = new TextField("#Attack", x, top - 5 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.attackCountString = new TextField("#Attack Str", x, top - 6 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.damage = new ComboBox("Damage", x, top - 7 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale - 2 * TEXT_FIELD_HEIGHT);
-        this.damageMin = new TextField("Damage Min", x, top - 8 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.damageMax = new TextField("Damage Max", x, top - 9 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.damageString = new TextField("Damage Str", x, top - 10 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.percentage = new TextField(TEXT[2], x, top - 3 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.limit = new TextField(TEXT[3], x, top - 4 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.attackCount = new TextField(TEXT[4], x, top - 5 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.attackCountString = new TextField(TEXT[5], x, top - 6 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.damage = new ComboBox(TEXT[6], x, top - 7 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale - 2 * TEXT_FIELD_HEIGHT);
+        this.damageMin = new TextField(TEXT[7], x, top - 8 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.damageMax = new TextField(TEXT[8], x, top - 9 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.damageString = new TextField(TEXT[9], x, top - 10 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
         this.addDamage = new Button(EditIntentGraphScreen.getButtonImage(9), x + 450 * Settings.scale - 2 * TEXT_FIELD_HEIGHT, top - 7 * TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT);
         this.removeDamage = new Button(EditIntentGraphScreen.getButtonImage(2), x + 450 * Settings.scale - TEXT_FIELD_HEIGHT, top - 7 * TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT, TEXT_FIELD_HEIGHT);
 

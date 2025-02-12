@@ -61,6 +61,13 @@ public class EditableIcon extends Icon implements EditableItem {
         this.hitbox.move(EditableItem.getScreenX(x + 0.5f, renderX), EditableItem.getScreenY(y + 0.5f, renderY));
     }
 
+    @Override
+    public void move(float x, float y) {
+        this.x += x;
+        this.y += y;
+        updateHitBoxesLocation();
+    }
+
     public boolean isAttack() {
         return isAttack;
     }

@@ -14,16 +14,20 @@ public class Toolbox {
     public Toolbox(float x, float top) {
         for (int i = 0; i < Tool.values().length; i++) {
             Tool tool = Tool.values()[i];
-            Button buttons = new Button(EditIntentGraphScreen.getButtonImage(tool.iconIndex),
-                    x + 70 * (i % 4) * Settings.scale, top - ((i / 4) * 70 + 64) * Settings.scale,
+            int gridX = i % 4;
+            int gridY = i / 4;
+            Button button = new Button(EditIntentGraphScreen.getButtonImage(tool.iconIndex),
+                    x + 70 * gridX * Settings.scale, top - (gridY * 70 + 64) * Settings.scale,
                     64 * Settings.scale, 64 * Settings.scale);
-            buttonMap.put(tool, buttons);
-            buttons.setOnClick(this::onClickTool);
+            buttonMap.put(tool, button);
+            button.setOnClick(this::onClickTool);
             if (tool == selectedTool) {
-                buttons.setInactiveColor(Color.GOLD);
+                button.setInactiveColor(new Color(0xFFD700FF));
             } else {
-                buttons.setInactiveColor(new Color(0.6f, 0.6f, 0.6f, 1F));
+                button.setInactiveColor(new Color(0.6f, 0.6f, 0.6f, 1F));
             }
+
+            button.setTooltip(EditIntentGraphScreen.TEXT[12 + i * 2], EditIntentGraphScreen.TEXT[12 + i * 2 + 1]);
         }
     }
 
@@ -47,7 +51,7 @@ public class Toolbox {
         for (Map.Entry<Tool, Button> entry : buttonMap.entrySet()) {
             if (entry.getValue() == button) {
                 selectedTool = entry.getKey();
-                entry.getValue().setInactiveColor(Color.GOLDENROD);
+                entry.getValue().setInactiveColor(new Color(0xFFD700FF));
             } else {
                 entry.getValue().setInactiveColor(new Color(0.6f, 0.6f, 0.6f, 1F));
             }

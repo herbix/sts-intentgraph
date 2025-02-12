@@ -93,6 +93,22 @@ public class EditableArrow extends Arrow implements EditableItem {
         this.hitBoxes.add(endHitbox);
     }
 
+    @Override
+    public void move(float x, float y) {
+        boolean isHorizontal = path[0] == 0;
+        path[1] += x;
+        path[2] += y;
+        for (int i = 3; i < path.length; i++) {
+            if (isHorizontal) {
+                path[i] += x;
+            } else {
+                path[i] += y;
+            }
+            isHorizontal = !isHorizontal;
+        }
+        updateHitBoxesLocation();
+    }
+
     public Arrow toArrow() {
         Arrow arrow = new Arrow();
         arrow.path = this.path.clone();

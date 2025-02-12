@@ -79,6 +79,13 @@ public class EditableIconGroup extends IconGroup implements EditableItem {
         bottom.move(EditableItem.getScreenX(x + w / 2, renderX), EditableItem.getScreenY(y + h, renderY));
     }
 
+    @Override
+    public void move(float x, float y) {
+        this.x += x;
+        this.y += y;
+        updateHitBoxesLocation();
+    }
+
     public IconGroup toIconGroup() {
         IconGroup iconGroup = new IconGroup();
         iconGroup.x = x;

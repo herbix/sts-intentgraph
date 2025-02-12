@@ -27,9 +27,9 @@ public class ArrowPropertiesControl extends PropertiesControl {
         super(undoRedoHelper);
         this.x = x;
         this.top = top;
-        this.horizontal = new CheckBox("Horizontal", x, top - TEXT_FIELD_HEIGHT, 450 * Settings.scale, TEXT_FIELD_HEIGHT);
-        this.instant = new CheckBox("Instant", x, top - 2 * TEXT_FIELD_HEIGHT, 450 * Settings.scale, TEXT_FIELD_HEIGHT);
-        this.startX = new TextField("Point 1", x, top - 3 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 100 * Settings.scale);
+        this.horizontal = new CheckBox(TEXT[16], x, top - TEXT_FIELD_HEIGHT, 450 * Settings.scale, TEXT_FIELD_HEIGHT);
+        this.instant = new CheckBox(TEXT[17], x, top - 2 * TEXT_FIELD_HEIGHT, 450 * Settings.scale, TEXT_FIELD_HEIGHT);
+        this.startX = new TextField(String.format(TEXT[18], 1), x, top - 3 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 100 * Settings.scale);
         this.startY = new TextField("", x, top - 3 * TEXT_FIELD_HEIGHT, 310 * Settings.scale, 100 * Settings.scale);
 
         this.horizontal.setOnChange(changeBoolListener(() -> arrow, (a) -> a.path[0] == 0, (a, value) -> { a.path[0] = value ? 0 : 1; updateTextFields(value); }));
@@ -58,7 +58,7 @@ public class ArrowPropertiesControl extends PropertiesControl {
         textFields.clear();
         for (int i = 3; i < arrow.path.length; i++) {
             int finalI = i;
-            TextField textField = new TextField("Point " + (i - 1), x, top - (i + 1) * TEXT_FIELD_HEIGHT, (isHorizontal ? 200 : 310) * Settings.scale, 100 * Settings.scale);
+            TextField textField = new TextField(String.format(TEXT[18], i - 1), x, top - (i + 1) * TEXT_FIELD_HEIGHT, (isHorizontal ? 200 : 310) * Settings.scale, 100 * Settings.scale);
             textField.setOnChange(changeFloatListener(() -> arrow, (a) -> a.path[finalI], (a, value) -> a.path[finalI] = value, () -> textFields.get(finalI - 3)));
             textField.setText(String.valueOf(arrow.path[i]));
             textFields.add(textField);

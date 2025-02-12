@@ -153,6 +153,25 @@ public class EditorCanvas {
         this.onSelectedItemChange = onSelectedItemChange;
     }
 
+    public void moveSelected(float x, float y) {
+        EditableItem target = this.selectedItem;
+        if (target != null) {
+            this.undoHelper.runAndPush(
+                    () -> target.move(x, y),
+                    () -> target.move(-x, -y));
+        }
+    }
+
+    public void deleteSelected() {
+        if (this.selectedItem != null) {
+            deleteItem(this.selectedItem);
+            this.selectedItem = null;
+            if (this.onSelectedItemChange != null) {
+                this.onSelectedItemChange.accept(this);
+            }
+        }
+    }
+
     private void renderItem(SpriteBatch sb, EditableItem item, Color color) {
         sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
         item.renderHitBoxes(sb, color);
@@ -197,6 +216,7 @@ public class EditorCanvas {
                     icon.type = AbstractMonster.Intent.ATTACK;
                     icon.x = x - 0.5f;
                     icon.y = y - 0.5f;
+                    icon.attackCount = 1;
                     return icon;
                 });
             }
@@ -283,15 +303,18 @@ public class EditorCanvas {
         updateEditableItems(this.graphDetail.arrows);
         updateEditableItems(this.graphDetail.labels);
         if (InputHelper.justClickedLeft && this.hoveredItem != null) {
-            EditableItem item = this.hoveredItem;
-            ArrayList<?> list = getContainingList(item);
-            if (list != null) {
-                int index = list.indexOf(item);
-                if (index >= 0) {
-                    this.undoHelper.runAndPush(
-                            () -> list.remove(index),
-                            () -> ((ArrayList<EditableItem>) list).add(index, item));
-                }
+            deleteItem(this.hoveredItem);
+        }
+    }
+
+    private void deleteItem(EditableItem item) {
+        ArrayList<?> list = getContainingList(item);
+        if (list != null) {
+            int index = list.indexOf(item);
+            if (index >= 0) {
+                this.undoHelper.runAndPush(
+                        () -> list.remove(index),
+                        () -> ((ArrayList<EditableItem>) list).add(index, item));
             }
         }
     }

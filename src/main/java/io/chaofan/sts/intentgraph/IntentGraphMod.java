@@ -20,6 +20,7 @@ import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.helpers.controller.CInputHelper;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
+import com.megacrit.cardcrawl.localization.UIStrings;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
@@ -42,7 +43,8 @@ public class IntentGraphMod implements
         PostRenderSubscriber,
         PostInitializeSubscriber,
         PostBattleSubscriber,
-        PostDeathSubscriber {
+        PostDeathSubscriber,
+        EditStringsSubscriber {
 
     public static final String MOD_ID = "intentgraph";
     public static final Logger logger = LogManager.getLogger(IntentGraphMod.class.getName());
@@ -153,6 +155,11 @@ public class IntentGraphMod implements
     @Override
     public void receivePostDeath() {
         unlockMonstersInCurrentCombat();
+    }
+
+    @Override
+    public void receiveEditStrings() {
+        BaseMod.loadCustomStringsFile(UIStrings.class, getLocalizationFilePath("ui.json"));
     }
 
     public MonsterIntentGraph getIntentGraph(String monsterId) {

@@ -6,6 +6,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import io.chaofan.sts.intentgraph.model.Label;
+import io.chaofan.sts.intentgraph.ui.LabelPropertiesControl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +31,9 @@ public class EditableLabel extends Label implements EditableItem {
         this.align = label.align;
         this.renderX = renderX;
         this.renderY = renderY;
+        if (label instanceof EditableLabel) {
+            this.localizedText = ((EditableLabel) label).localizedText;
+        }
         updateHitBoxesLocation();
     }
 
@@ -55,6 +59,9 @@ public class EditableLabel extends Label implements EditableItem {
 
     @Override
     public String getLocalizedString(String string) {
+        if (!LabelPropertiesControl.showLocalizedText) {
+            return label;
+        }
         if (localizedText != null) {
             return localizedText;
         }
@@ -72,6 +79,13 @@ public class EditableLabel extends Label implements EditableItem {
         } else {
             hitbox.move(EditableItem.getScreenX(x, renderX), EditableItem.getScreenY(y + 0.1f, renderY));
         }
+    }
+
+    @Override
+    public void move(float x, float y) {
+        this.x += x;
+        this.y += y;
+        updateHitBoxesLocation();
     }
 
     public Label toLabel() {

@@ -6,18 +6,14 @@ import io.chaofan.sts.intentgraph.model.editor.EditableMonsterGraphDetail;
 import io.chaofan.sts.intentgraph.model.editor.UndoRedoHelper;
 
 public class GraphPropertiesControl extends PropertiesControl {
-    private final float x;
-    private final float top;
     private final TextField width;
     private final TextField height;
     private EditableMonsterGraphDetail graphDetail;
 
     public GraphPropertiesControl(float x, float top, UndoRedoHelper undoRedoHelper) {
         super(undoRedoHelper);
-        this.x = x;
-        this.top = top;
-        this.width = new TextField("Width", x, top - TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.height = new TextField("Height", x, top - 2 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.width = new TextField(TEXT[0], x, top - TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.height = new TextField(TEXT[1], x, top - 2 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
         this.width.setOnChange(this.changeFloatListener(() -> graphDetail, (g) -> g.width, (g, value) -> g.width = value));
         this.height.setOnChange(this.changeFloatListener(() -> graphDetail, (g) -> g.height, (g, value) -> g.height = value));
     }

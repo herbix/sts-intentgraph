@@ -6,8 +6,6 @@ import io.chaofan.sts.intentgraph.model.editor.EditableIconGroup;
 import io.chaofan.sts.intentgraph.model.editor.UndoRedoHelper;
 
 public class IconGroupPropertiesControl extends PropertiesControl {
-    private final float x;
-    private final float top;
     private final TextField groupX;
     private final TextField groupY;
     private final TextField groupWidth;
@@ -16,12 +14,10 @@ public class IconGroupPropertiesControl extends PropertiesControl {
 
     public IconGroupPropertiesControl(float x, float top, UndoRedoHelper undoRedoHelper) {
         super(undoRedoHelper);
-        this.x = x;
-        this.top = top;
         this.groupX = new TextField("X", x, top - TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
         this.groupY = new TextField("Y", x, top - 2 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.groupWidth = new TextField("Width", x, top - 3 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
-        this.groupHeight = new TextField("Height", x, top - 4 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.groupWidth = new TextField(TEXT[10], x, top - 3 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
+        this.groupHeight = new TextField(TEXT[11], x, top - 4 * TEXT_FIELD_HEIGHT, 200 * Settings.scale, 250 * Settings.scale);
 
         this.groupX.setOnChange(changeFloatListener(() -> group, (g) -> g.x, (g, value) -> g.x = value));
         this.groupY.setOnChange(changeFloatListener(() -> group, (g) -> g.y, (g, value) -> g.y = value));

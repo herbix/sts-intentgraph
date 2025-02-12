@@ -13,6 +13,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireEnum;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.FontHelper;
@@ -36,12 +37,14 @@ import java.util.Map;
 import static io.chaofan.sts.intentgraph.IntentGraphMod.getImagePath;
 
 public class EditIntentGraphScreen extends CustomScreen {
+    public static final String[] TEXT = CardCrawlGame.languagePack.getUIString("intentgraph:EditIntentScreen").TEXT;
+
     private static final Texture buttonTexture = ImageMaster.loadImage(getImagePath("ui/button.png"));
 
     private final UndoRedoHelper undoHelper = new UndoRedoHelper();
 
-    private final EditorControl editorControl = new EditorControl(50 * Settings.scale, Settings.HEIGHT - 390 * Settings.scale);
-    private final Toolbox toolbox = new Toolbox(50 * Settings.scale, Settings.HEIGHT - 390 * Settings.scale);
+    private final EditorControl editorControl = new EditorControl(50 * Settings.scale, Settings.HEIGHT - 460 * Settings.scale);
+    private final Toolbox toolbox = new Toolbox(50 * Settings.scale, Settings.HEIGHT - 460 * Settings.scale);
     private final EditorCanvas editorCanvas = new EditorCanvas(350 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, Settings.WIDTH - 870 * Settings.scale, toolbox, undoHelper);
     private final GraphPropertiesControl graphPropertiesControl = new GraphPropertiesControl(Settings.WIDTH - 500 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, undoHelper);
     private final IconPropertiesControl iconPropertiesControl = new IconPropertiesControl(Settings.WIDTH - 500 * Settings.scale, Settings.HEIGHT - 250 * Settings.scale, undoHelper);
@@ -64,6 +67,8 @@ public class EditIntentGraphScreen extends CustomScreen {
         editorControl.setOnAscensionChange(this::onAscensionChange);
         editorControl.setOnAdd(this::onAdd);
         editorControl.setOnRemove(this::onRemove);
+        editorControl.setOnUndo(undoHelper::undo);
+        editorControl.setOnRedo(undoHelper::redo);
         editorCanvas.setOnSelectedItemChange(this::onCanvasSelectedItemChange);
     }
 
@@ -143,17 +148,45 @@ public class EditIntentGraphScreen extends CustomScreen {
             propertyControl.update();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-                if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+        updateShortcuts();
+    }
+
+    private void updateShortcuts() {
+        Input input = Gdx.input;
+        if (input.isKeyPressed(Input.Keys.CONTROL_LEFT) || input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
+            if (input.isKeyJustPressed(Input.Keys.Z)) {
+                if (input.isKeyPressed(Input.Keys.SHIFT_LEFT) || input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
                     undoHelper.redo();
                 } else {
                     undoHelper.undo();
                 }
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
+            } else if (input.isKeyJustPressed(Input.Keys.Y)) {
                 undoHelper.redo();
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+            } else if (input.isKeyJustPressed(Input.Keys.S)) {
                 save();
+            }
+        }
+
+        if (TextField.hoverField == null) {
+            boolean updated = false;
+            if (input.isKeyJustPressed(Input.Keys.LEFT)) {
+                editorCanvas.moveSelected(-0.25f, 0);
+                updated = true;
+            } else if (input.isKeyJustPressed(Input.Keys.RIGHT)) {
+                editorCanvas.moveSelected(0.25f, 0);
+                updated = true;
+            } else if (input.isKeyJustPressed(Input.Keys.UP)) {
+                editorCanvas.moveSelected(0, -0.25f);
+                updated = true;
+            } else if (input.isKeyJustPressed(Input.Keys.DOWN)) {
+                editorCanvas.moveSelected(0, 0.25f);
+                updated = true;
+            } else if (input.isKeyJustPressed(Input.Keys.FORWARD_DEL)) {
+                editorCanvas.deleteSelected();
+                updated = true;
+            }
+            if (propertyControl != null && updated) {
+                propertyControl.refresh();
             }
         }
     }
@@ -301,7 +334,7 @@ public class EditIntentGraphScreen extends CustomScreen {
             iconGroupPropertiesControl.setGroup((EditableIconGroup) selectedItem);
             propertyControl = iconGroupPropertiesControl;
         } else if (selectedItem instanceof EditableLabel) {
-            labelPropertiesControl.setLabel((EditableLabel) selectedItem);
+            labelPropertiesControl.setLabel(editorCanvas.getGraphDetail(), (EditableLabel) selectedItem);
             propertyControl = labelPropertiesControl;
         } else if (selectedItem instanceof EditableArrow) {
             arrowPropertiesControl.setArrow((EditableArrow) selectedItem);

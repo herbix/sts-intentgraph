@@ -15,6 +15,7 @@ public interface EditableItem {
     void render(SpriteBatch sb, EditableMonsterGraphDetail graphDetail);
     Collection<Hitbox> getHitBoxes();
     void updateHitBoxesLocation();
+    void move(float x, float y);
 
     default void renderHitBoxes(SpriteBatch sb, Color color) {
         sb.setColor(color);

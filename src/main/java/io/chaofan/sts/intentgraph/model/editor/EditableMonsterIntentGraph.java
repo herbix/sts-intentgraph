@@ -65,7 +65,6 @@ public class EditableMonsterIntentGraph {
 
     private MonsterGraphDetail saveDetail(EditableMonsterGraphDetail editableDetail) {
         MonsterGraphDetail detail = new MonsterGraphDetail();
-        detail.id = null;
         detail.condition = editableDetail.ascensionLevel == 0 ? "true" : "ascension >= " + editableDetail.ascensionLevel;
         detail.ascensionLevel = editableDetail.ascensionLevel;
         detail.width = editableDetail.width;

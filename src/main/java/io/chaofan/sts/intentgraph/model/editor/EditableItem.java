@@ -34,6 +34,21 @@ public interface EditableItem {
         return getHitBoxes().stream().anyMatch(hitbox -> hitbox.hovered);
     }
 
+    default boolean isInRect(float x1, float y1, float x2, float y2) {
+        float xMin = Math.min(x1, x2);
+        float xMax = Math.max(x1, x2);
+        float yMin = Math.min(y1, y2);
+        float yMax = Math.max(y1, y2);
+
+        return getHitBoxes().stream().allMatch(hitBox -> {
+            float hitBoxXMin = hitBox.x;
+            float hitBoxXMax = hitBox.x + hitBox.width;
+            float hitBoxYMin = hitBox.y;
+            float hitBoxYMax = hitBox.y + hitBox.height;
+            return hitBoxXMin >= xMin && hitBoxXMax <= xMax && hitBoxYMin >= yMin && hitBoxYMax <= yMax;
+        });
+    }
+
     static float getGridX(float x, float renderX) {
         return (x - renderX) / (IntentGraphMod.GRID_SIZE * Settings.scale);
     }

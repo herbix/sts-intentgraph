@@ -22,6 +22,7 @@ import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import io.chaofan.sts.intentgraph.IntentGraphMod;
 import io.chaofan.sts.intentgraph.model.Damage;
+import io.chaofan.sts.intentgraph.model.MonsterGraphDetail;
 import io.chaofan.sts.intentgraph.model.MonsterIntentGraph;
 import io.chaofan.sts.intentgraph.model.editor.*;
 import io.chaofan.sts.intentgraph.patches.DisableInputActionPatch;
@@ -32,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.chaofan.sts.intentgraph.IntentGraphMod.getImagePath;
@@ -58,7 +60,7 @@ public class EditIntentGraphScreen extends CustomScreen {
     private EditableMonsterIntentGraph monsterIntentGraph;
 
     private float saveTimer = 0;
-    private String saveString = "Saved";
+    private String saveString = TEXT[24];
     private final Color saveTimerColor = Color.WHITE.cpy();
 
     public EditIntentGraphScreen() {
@@ -228,7 +230,6 @@ public class EditIntentGraphScreen extends CustomScreen {
         EditableMonsterGraphDetail graphDetail = monsterIntentGraph.graphs.get(ascension);
         editorCanvas.setGraphDetail(graphDetail);
         editorControl.setShowAdd(graphDetail.ascensionLevel != ascension);
-        onCanvasSelectedItemChange(editorCanvas);
     }
 
     private void save() {
@@ -265,17 +266,25 @@ public class EditIntentGraphScreen extends CustomScreen {
             Map<String, String> localizedStrings = monsterIntentGraph.getLocalizedStrings();
             intentStrings.putAll(localizedStrings);
 
+            for (MonsterIntentGraph graph : intents.values()) {
+                for (MonsterGraphDetail detail : graph.graphList) {
+                    if (detail.id.matches("default\\d+")) {
+                        detail.id = null;
+                    }
+                }
+            }
+
             Gdx.files.local(IntentGraphMod.INTENTGRAPH_INTENTS_DEV_JSON).writeString(gson.toJson(intents), false);
             Gdx.files.local(IntentGraphMod.INTENTGRAPH_INTENT_STRINGS_DEV_JSON).writeString(gson.toJson(intentStrings), false);
 
             IntentGraphMod.instance.loadIntents();
 
             saveTimer = 2;
-            saveString = "Saved";
+            saveString = TEXT[24];
         } catch (Exception ex) {
             IntentGraphMod.logger.info(ex);
             saveTimer = 3;
-            saveString = "Save Failed";
+            saveString = TEXT[25];
         }
     }
 
@@ -323,7 +332,8 @@ public class EditIntentGraphScreen extends CustomScreen {
         TextField.hoverField = null;
         ComboBox.openedComboBox = null;
 
-        EditableItem selectedItem = editorCanvas.getSelectedItem();
+        List<EditableItem> selectedItems = editorCanvas.getSelectedItems();
+        EditableItem selectedItem = selectedItems.size() != 1 ? null : selectedItems.get(0);
         if (selectedItem == null) {
             graphPropertiesControl.setGraphDetail(editorCanvas.getGraphDetail());
             propertyControl = graphPropertiesControl;

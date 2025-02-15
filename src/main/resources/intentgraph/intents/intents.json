@@ -6197,5 +6197,49 @@
         }
       ]
     }
+  },
+  "Apology Slime": {
+    "width": 2.0,
+    "height": 1.3,
+    "graphs": {},
+    "graphList": [
+      {
+        "condition": "true",
+        "damages": [
+          {
+            "min": 3
+          }
+        ],
+        "icons": [
+          {
+            "x": 0.0,
+            "y": 0.0,
+            "type": "ATTACK",
+            "percentage": 50,
+            "attackCount": 1
+          },
+          {
+            "x": 1.0,
+            "y": 0.0,
+            "type": "DEBUFF",
+            "percentage": 50
+          }
+        ],
+        "iconGroups": [
+          {
+            "x": 0.0,
+            "y": 0.0,
+            "w": 2.0,
+            "h": 1.0
+          }
+        ],
+        "arrows": [
+          {
+            "path": [ 1, 0.5, 1.0, 1.3, 1.5, 1.0 ]
+          }
+        ],
+        "labels": []
+      }
+    ]
   }
 }
